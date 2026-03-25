@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Spider-Man Web Vangers!</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;
+background:linear-gradient(180deg,#1a0a2e 0%,#16213e 50%,#0f3460 100%);
+touch-action:none;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+body{display:flex;flex-direction:column;align-items:center;
+font-family:'Comic Sans MS','Chalkboard SE',-apple-system,sans-serif;color:#fff;
+padding:8px 4px env(safe-area-inset-bottom)}
+
+h1{font-size:1.4rem;color:#e23636;text-shadow:2px 2px 0 #1a0a2e,0 0 10px rgba(226,54,54,.5);
+letter-spacing:1px;margin-bottom:2px}
+#sub{font-size:.7rem;color:#4a9aea;margin-bottom:4px}
+
+#player-bar{display:flex;gap:8px;margin-bottom:6px;flex-wrap:wrap;justify-content:center}
+.player-tab{padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:bold;
+cursor:pointer;transition:all .2s;border:2px solid transparent;opacity:.5}
+.player-tab.active{opacity:1;transform:scale(1.1);border-color:#fff}
+.player-tab .score{font-size:.65rem;display:block;text-align:center}
+
+#hud{display:flex;gap:1rem;font-size:.85rem;margin-bottom:4px}
+#hud span{font-weight:bold}
+#timer{color:#e23636}
+#round-info{color:#4a9aea}
+
+#grid{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);
+gap:8px;width:min(90vw,360px);height:min(90vw,360px);margin:4px auto;perspective:500px}
+
+.cell{position:relative;border-radius:16px;overflow:hidden;cursor:pointer;
+background:radial-gradient(circle,#1e3a5f 0%,#0d1b2e 100%);
+border:3px solid #1a3a5a;transition:border-color .2s;
+display:flex;align-items:center;justify-content:center;
+-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.cell:active{border-color:#e23636}
+.cell .character{position:absolute;font-size:min(15vw,60px);
+transition:all .3s cubic-bezier(.68,-.55,.27,1.55);opacity:0;transform:scale(0) rotate(-180deg)}
+.cell .character.show{opacity:1;transform:scale(1) rotate(0deg)}
+.cell .character.caught{opacity:0;transform:scale(1.5) rotate(360deg);
+filter:brightness(2)}
+.cell .web{position:absolute;font-size:min(12vw,50px);opacity:0;
+transform:scale(0);pointer-events:none}
+.cell .web.show{opacity:1;transform:scale(1);animation:webShoot .4s ease-out}
+
+@keyframes webShoot{
+0%{transform:scale(0) rotate(0deg);opacity:0}
+50%{transform:scale(1.3) rotate(180deg);opacity:1}
+100%{transform:scale(1) rotate(360deg);opacity:1}
+}
+
+#msg{font-size:.85rem;color:#ffd700;text-align:center;min-height:1.2rem;
+text-shadow:0 0 8px rgba(255,215,0,.5);margin-top:4px}
+
+#start-screen{position:fixed;inset:0;background:rgba(10,5,30,.95);
+display:flex;flex-direction:column;align-items:center;justify-content:center;
+z-index:100;gap:12px;padding:20px}
+#start-screen h2{font-size:2rem;color:#e23636;text-shadow:3px 3px 0 #1a0a2e}
+#start-screen .spider{font-size:5rem;animation:bounce 1s infinite alternate}
+#start-screen p{color:#4a9aea;font-size:.9rem;text-align:center;max-width:300px}
+#start-screen button{padding:14px 40px;font-size:1.2rem;font-weight:bold;
+border:none;border-radius:30px;cursor:pointer;
+background:linear-gradient(135deg,#e23636,#c0392b);color:#fff;
+font-family:inherit;box-shadow:0 4px 15px rgba(226,54,54,.4);
+-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+#start-screen button:active{transform:scale(.95)}
+
+.player-names{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.player-names span{padding:6px 16px;border-radius:20px;font-weight:bold;font-size:1rem}
+
+#end-screen{position:fixed;inset:0;background:rgba(10,5,30,.95);
+display:none;flex-direction:column;align-items:center;justify-content:center;
+z-index:100;gap:10px;padding:20px}
+#end-screen h2{font-size:1.8rem;color:#ffd700;text-shadow:3px 3px 0 #1a0a2e}
+#end-screen .trophy{font-size:4rem}
+#end-screen .results{text-align:center}
+#end-screen .results div{font-size:1.1rem;margin:6px 0;padding:8px 20px;border-radius:20px}
+#end-screen button{padding:14px 40px;font-size:1.2rem;font-weight:bold;
+border:none;border-radius:30px;cursor:pointer;
+background:linear-gradient(135deg,#e23636,#c0392b);color:#fff;
+font-family:inherit;box-shadow:0 4px 15px rgba(226,54,54,.4);
+-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+
+#combo{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+font-size:3rem;font-weight:bold;color:#ffd700;pointer-events:none;
+opacity:0;z-index:50;text-shadow:3px 3px 0 #e23636}
+#combo.show{animation:comboAnim .8s ease-out forwards}
+
+@keyframes comboAnim{
+0%{opacity:1;transform:translate(-50%,-50%) scale(0.5)}
+50%{opacity:1;transform:translate(-50%,-50%) scale(1.5)}
+100%{opacity:0;transform:translate(-50%,-80%) scale(1)}
+}
+
+@keyframes bounce{
+0%{transform:translateY(0)}
+100%{transform:translateY(-15px)}
+}
+
+.sparkle{position:fixed;pointer-events:none;z-index:60;font-size:1.5rem;
+animation:sparkleAnim .8s ease-out forwards}
+@keyframes sparkleAnim{
+0%{opacity:1;transform:translate(0,0) scale(1)}
+100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(0)}
+}
+</style>
+</head>
+<body>
+
+<div id="start-screen">
+<div class="spider">&#128375;</div>
+<h2>Web Vangers!</h2>
+<p>Vang de boeven met Spider-Man's web!</p>
+<div class="player-names">
+<span style="background:#e23636">Thijs</span>
+<span style="background:#2980b9">Bob</span>
+<span style="background:#8e44ad">Mama</span>
+</div>
+<p style="font-size:.75rem;color:#888;margin-top:4px">Iedereen mag om de beurt!<br>Tik op de boeven om ze te vangen!</p>
+<button id="start-btn">Start! &#128375;</button>
+</div>
+
+<div id="end-screen">
+<div class="trophy">&#127942;</div>
+<h2 id="winner-text">Gewonnen!</h2>
+<div class="results" id="results"></div>
+<button id="restart-btn">Nog een keer! &#128375;</button>
+</div>
+
+<h1>&#128375; Web Vangers!</h1>
+<div id="sub">Thijs, Bob & Mama</div>
+
+<div id="player-bar">
+<div class="player-tab" data-p="0" style="background:#e23636">
+Thijs<span class="score">0</span>
+</div>
+<div class="player-tab" data-p="1" style="background:#2980b9">
+Bob<span class="score">0</span>
+</div>
+<div class="player-tab" data-p="2" style="background:#8e44ad">
+Mama<span class="score">0</span>
+</div>
+</div>
+
+<div id="hud">
+<div>Ronde: <span id="round-info">1/3</span></div>
+<div>Tijd: <span id="timer">30</span>s</div>
+</div>
+
+<div id="grid"></div>
+<div id="msg">Tik op de boeven!</div>
+<div id="combo"></div>
+
+<script>
+try {
+// Players
+var players = [
+  {name:'Thijs', color:'#e23636', score:0, emoji:'&#129431;'},
+  {name:'Bob', color:'#2980b9', score:0, emoji:'&#129431;'},
+  {name:'Mama', color:'#8e44ad', score:0, emoji:'&#129431;'}
+];
+
+var villains = ['&#129464;','&#128123;','&#128125;','&#129413;','&#128126;','&#128121;'];
+var villainNames = ['Boef','Spook','Alien','Spin','Duivel','Trol'];
+var goodItems = ['&#11088;','&#10084;','&#128375;'];
+
+var currentPlayer = 0;
+var currentRound = 1;
+var totalRounds = 3;
+var roundTime = 25;
+var timer = roundTime;
+var timerInterval = null;
+var spawnInterval = null;
+var gameActive = false;
+var comboCount = 0;
+var lastCatchTime = 0;
+var cells = [];
+var cellData = [];
+
+// DOM
+var grid = document.getElementById('grid');
+var msgEl = document.getElementById('msg');
+var timerEl = document.getElementById('timer');
+var roundEl = document.getElementById('round-info');
+var comboEl = document.getElementById('combo');
+var startScreen = document.getElementById('start-screen');
+var endScreen = document.getElementById('end-screen');
+var playerTabs = document.querySelectorAll('.player-tab');
+
+// Build grid
+for (var i = 0; i < 9; i++) {
+  var cell = document.createElement('div');
+  cell.className = 'cell';
+  cell.innerHTML = '<div class="character"></div><div class="web">&#128376;</div>';
+  cell.dataset.idx = i;
+  grid.appendChild(cell);
+  cells.push(cell);
+  cellData.push({active:false, type:null, timeout:null});
+
+  (function(idx) {
+    cell.addEventListener('touchstart', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      tapCell(idx);
+    }, {passive:false});
+    cell.addEventListener('mousedown', function(e) {
+      e.preventDefault();
+      tapCell(idx);
+    });
+  })(i);
+}
+
+function updatePlayerBar() {
+  for (var i = 0; i < playerTabs.length; i++) {
+    var tab = playerTabs[i];
+    var p = parseInt(tab.dataset.p);
+    tab.classList.toggle('active', p === currentPlayer);
+    tab.querySelector('.score').textContent = players[p].score;
+  }
+}
+
+function showMessage(text) {
+  msgEl.textContent = text;
+}
+
+function spawnVillain() {
+  if (!gameActive) return;
+
+  // Find empty cells
+  var empty = [];
+  for (var i = 0; i < 9; i++) {
+    if (!cellData[i].active) empty.push(i);
+  }
+  if (empty.length === 0) return;
+
+  var idx = empty[Math.floor(Math.random() * empty.length)];
+  var isGood = Math.random() < 0.15;
+  var ch = cells[idx].querySelector('.character');
+
+  if (isGood) {
+    var gi = Math.floor(Math.random() * goodItems.length);
+    ch.innerHTML = goodItems[gi];
+    cellData[idx].type = 'good';
+  } else {
+    var vi = Math.floor(Math.random() * villains.length);
+    ch.innerHTML = villains[vi];
+    cellData[idx].type = 'villain';
+    cellData[idx].villainIdx = vi;
+  }
+
+  cellData[idx].active = true;
+  ch.className = 'character show';
+
+  // Auto-hide after a while
+  var hideTime = 1800 + Math.random() * 1500;
+  if (currentRound > 1) hideTime -= 300;
+  if (currentRound > 2) hideTime -= 300;
+
+  cellData[idx].timeout = setTimeout(function() {
+    hideCell(idx);
+  }, hideTime);
+}
+
+function hideCell(idx) {
+  cellData[idx].active = false;
+  cellData[idx].type = null;
+  cells[idx].querySelector('.character').className = 'character';
+  cells[idx].querySelector('.web').className = 'web';
+  if (cellData[idx].timeout) {
+    clearTimeout(cellData[idx].timeout);
+    cellData[idx].timeout = null;
+  }
+}
+
+function sparkles(x, y, emoji) {
+  for (var i = 0; i < 6; i++) {
+    var s = document.createElement('div');
+    s.className = 'sparkle';
+    s.textContent = emoji || '⭐';
+    s.style.left = x + 'px';
+    s.style.top = y + 'px';
+    var angle = (i / 6) * Math.PI * 2;
+    s.style.setProperty('--dx', Math.cos(angle) * 60 + 'px');
+    s.style.setProperty('--dy', Math.sin(angle) * 60 + 'px');
+    document.body.appendChild(s);
+    setTimeout(function(el) { el.remove(); }, 800, s);
+  }
+}
+
+function tapCell(idx) {
+  if (!gameActive || !cellData[idx].active) return;
+
+  var rect = cells[idx].getBoundingClientRect();
+  var cx = rect.left + rect.width / 2;
+  var cy = rect.top + rect.height / 2;
+
+  if (cellData[idx].type === 'villain') {
+    // Caught a villain!
+    var now = Date.now();
+    if (now - lastCatchTime < 2000) {
+      comboCount++;
+    } else {
+      comboCount = 1;
+    }
+    lastCatchTime = now;
+
+    var points = 10;
+    if (comboCount >= 3) {
+      points = 30;
+      showCombo('SUPER! +30');
+    } else if (comboCount >= 2) {
+      points = 20;
+      showCombo('COMBO! +20');
+    }
+
+    players[currentPlayer].score += points;
+    updatePlayerBar();
+
+    // Web animation
+    var ch = cells[idx].querySelector('.character');
+    ch.className = 'character show caught';
+    cells[idx].querySelector('.web').className = 'web show';
+
+    sparkles(cx, cy, '🕸️');
+
+    var vn = cellData[idx].villainIdx !== undefined ? villainNames[cellData[idx].villainIdx] : 'Boef';
+    showMessage(players[currentPlayer].name + ' vangt ' + vn + '! +' + points);
+
+    if (cellData[idx].timeout) clearTimeout(cellData[idx].timeout);
+    cellData[idx].timeout = setTimeout(function() { hideCell(idx); }, 400);
+
+  } else if (cellData[idx].type === 'good') {
+    // Bonus item!
+    players[currentPlayer].score += 25;
+    updatePlayerBar();
+
+    var ch2 = cells[idx].querySelector('.character');
+    ch2.className = 'character show caught';
+
+    sparkles(cx, cy, '⭐');
+    showMessage(players[currentPlayer].name + ' vindt een bonus! +25');
+
+    if (cellData[idx].timeout) clearTimeout(cellData[idx].timeout);
+    cellData[idx].timeout = setTimeout(function() { hideCell(idx); }, 400);
+  }
+}
+
+function showCombo(text) {
+  comboEl.textContent = text;
+  comboEl.className = '';
+  void comboEl.offsetWidth;
+  comboEl.className = 'show';
+}
+
+function startRound() {
+  gameActive = true;
+  timer = roundTime;
+  timerEl.textContent = timer;
+  roundEl.textContent = currentRound + '/' + totalRounds;
+  comboCount = 0;
+  updatePlayerBar();
+
+  showMessage(players[currentPlayer].name + ' is aan de beurt!');
+
+  // Clear all cells
+  for (var i = 0; i < 9; i++) hideCell(i);
+
+  // Start spawning
+  var spawnRate = 900;
+  if (currentRound > 1) spawnRate = 750;
+  if (currentRound > 2) spawnRate = 600;
+
+  // Spawn first villain immediately
+  setTimeout(function() { spawnVillain(); }, 300);
+
+  spawnInterval = setInterval(function() {
+    spawnVillain();
+    // Sometimes spawn two
+    if (Math.random() < 0.3) {
+      setTimeout(spawnVillain, 200);
+    }
+  }, spawnRate);
+
+  // Timer
+  timerInterval = setInterval(function() {
+    timer--;
+    timerEl.textContent = timer;
+    if (timer <= 5) timerEl.style.color = '#ffd700';
+    if (timer <= 0) {
+      endRound();
+    }
+  }, 1000);
+}
+
+function endRound() {
+  gameActive = false;
+  clearInterval(timerInterval);
+  clearInterval(spawnInterval);
+  timerEl.style.color = '#e23636';
+
+  // Clear remaining villains
+  for (var i = 0; i < 9; i++) hideCell(i);
+
+  // Next player
+  currentPlayer++;
+
+  if (currentPlayer >= players.length) {
+    currentPlayer = 0;
+    currentRound++;
+
+    if (currentRound > totalRounds) {
+      endGame();
+      return;
+    }
+    showMessage('Ronde ' + currentRound + '! ' + players[currentPlayer].name + ' begint!');
+  } else {
+    showMessage(players[currentPlayer].name + ' is nu aan de beurt!');
+  }
+
+  // Delay before next round
+  setTimeout(function() {
+    startRound();
+  }, 2500);
+}
+
+function endGame() {
+  endScreen.style.display = 'flex';
+
+  // Find winner
+  var maxScore = 0;
+  var winner = '';
+  var results = document.getElementById('results');
+  results.innerHTML = '';
+
+  // Sort by score
+  var sorted = players.slice().sort(function(a, b) { return b.score - a.score; });
+
+  var medals = ['🥇','🥈','🥉'];
+  for (var i = 0; i < sorted.length; i++) {
+    var div = document.createElement('div');
+    div.style.background = sorted[i].color;
+    div.textContent = medals[i] + ' ' + sorted[i].name + ': ' + sorted[i].score + ' punten';
+    results.appendChild(div);
+  }
+
+  var total = players[0].score + players[1].score + players[2].score;
+  document.getElementById('winner-text').textContent = sorted[0].name + ' wint! 🎉';
+
+  // Add total
+  var totalDiv = document.createElement('div');
+  totalDiv.style.background = '#2c3e50';
+  totalDiv.style.marginTop = '10px';
+  totalDiv.textContent = '⭐ Samen: ' + total + ' punten!';
+  results.appendChild(totalDiv);
+
+  // Celebration sparkles
+  for (var j = 0; j < 5; j++) {
+    setTimeout(function() {
+      sparkles(
+        Math.random() * window.innerWidth,
+        Math.random() * window.innerHeight,
+        ['🕷️','⭐','🕸️','🎉'][Math.floor(Math.random()*4)]
+      );
+    }, j * 300);
+  }
+}
+
+function resetGame() {
+  for (var i = 0; i < players.length; i++) players[i].score = 0;
+  currentPlayer = 0;
+  currentRound = 1;
+  timer = roundTime;
+  timerEl.style.color = '#e23636';
+  endScreen.style.display = 'none';
+  updatePlayerBar();
+  startRound();
+}
+
+// Start button
+document.getElementById('start-btn').addEventListener('click', function() {
+  startScreen.style.display = 'none';
+  resetGame();
+});
+document.getElementById('start-btn').addEventListener('touchstart', function(e) {
+  e.preventDefault();
+  startScreen.style.display = 'none';
+  resetGame();
+}, {passive:false});
+
+// Restart button
+document.getElementById('restart-btn').addEventListener('click', function() {
+  resetGame();
+});
+document.getElementById('restart-btn').addEventListener('touchstart', function(e) {
+  e.preventDefault();
+  resetGame();
+}, {passive:false});
+
+// Prevent scroll
+document.addEventListener('touchmove', function(e) { e.preventDefault(); }, {passive:false});
+
+updatePlayerBar();
+
+} catch(err) {
+  document.getElementById('msg').textContent = 'Fout: ' + err.message;
+  document.getElementById('msg').style.color = '#ff4444';
+}
+</script>
+</body>
+</html>
