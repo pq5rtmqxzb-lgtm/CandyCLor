@@ -360,15 +360,15 @@ const AudioEngine = {
   }
 };
 
-// --- Gem Types ---
+// --- Gem Types (DBZ Characters) ---
 const GEM_TYPES = [
-  { id: 0, name: 'Ki Blast',   color: '#ff4444', glow: '#ff0000', icon: '🔴', gradient: ['#ff6666','#cc0000'] },
-  { id: 1, name: 'Ki Orb',     color: '#4488ff', glow: '#0044ff', icon: '🔵', gradient: ['#66aaff','#0044cc'] },
-  { id: 2, name: 'Super Ki',   color: '#ffcc00', glow: '#ffaa00', icon: '🟡', gradient: ['#ffdd44','#cc9900'] },
-  { id: 3, name: 'Namek Ki',   color: '#44cc44', glow: '#00aa00', icon: '🟢', gradient: ['#66ee66','#008800'] },
-  { id: 4, name: 'Frieza Ki',  color: '#cc44ff', glow: '#8800cc', icon: '🟣', gradient: ['#dd66ff','#7700aa'] },
-  { id: 5, name: 'Dragon Ball', color: '#ff8800', glow: '#ff6600', icon: '🟠', gradient: ['#ffaa44','#cc5500'] },
-  { id: 6, name: 'Senzu Bean', color: '#00cccc', glow: '#009999', icon: '💎', gradient: ['#44eeee','#007777'] },
+  { id: 0, name: 'Goku',       color: '#ff8800', glow: '#ff6600', gradient: ['#ffaa44','#cc5500'], skin: '#ffd5a0', hair: '#111', gi: '#ff6600', char: 'goku' },
+  { id: 1, name: 'Vegeta',     color: '#3355cc', glow: '#2244aa', gradient: ['#5577ee','#223399'], skin: '#ffd5a0', hair: '#111', gi: '#2244aa', char: 'vegeta' },
+  { id: 2, name: 'Gohan',      color: '#cc2244', glow: '#aa1133', gradient: ['#ee4466','#991133'], skin: '#ffd5a0', hair: '#111', gi: '#cc2244', char: 'gohan' },
+  { id: 3, name: 'Piccolo',    color: '#339933', glow: '#227722', gradient: ['#55bb55','#116611'], skin: '#5a8a3a', hair: '#5a8a3a', gi: '#8844aa', char: 'piccolo' },
+  { id: 4, name: 'Frieza',     color: '#9944cc', glow: '#7722aa', gradient: ['#bb66ee','#661199'], skin: '#e8d8f0', hair: '#e8d8f0', gi: '#9944cc', char: 'frieza' },
+  { id: 5, name: 'Dragon Ball', color: '#ff8800', glow: '#ff6600', gradient: ['#ffcc44','#dd7700'], skin: '#ffaa00', hair: '#ffaa00', gi: '#ff8800', char: 'dragonball' },
+  { id: 6, name: 'Trunks',     color: '#6688cc', glow: '#4466aa', gradient: ['#88aaee','#335599'], skin: '#ffd5a0', hair: '#9966cc', gi: '#6688cc', char: 'trunks' },
 ];
 
 // --- Level Definitions ---
@@ -378,25 +378,25 @@ const LEVELS = [
   { level:3,  rows:7, cols:7, moves:20, targetScore:1600,  types:5, title:'Training Begint',         goal:'Behaal 1600 punten' },
   { level:4,  rows:7, cols:7, moves:20, targetScore:2000,  types:6, title:'Wereld Toernooi',         goal:'Behaal 2000 punten' },
   { level:5,  rows:8, cols:7, moves:22, targetScore:2500,  types:6, title:'Piccolo Verschijnt',      goal:'Behaal 2500 punten' },
-  { level:6,  rows:8, cols:7, moves:20, targetScore:3000,  types:6, title:'Saiyan Saga',             goal:'Behaal 3000 punten', collectType:0, collectCount:15 },
-  { level:7,  rows:8, cols:7, moves:20, targetScore:3200,  types:6, title:'Vegeta Nadert',           goal:'Verzamel 18 blauwe Ki', collectType:1, collectCount:18 },
+  { level:6,  rows:8, cols:7, moves:20, targetScore:3000,  types:6, title:'Saiyan Saga',             goal:'Verzamel 15x Goku', collectType:0, collectCount:15 },
+  { level:7,  rows:8, cols:7, moves:20, targetScore:3200,  types:6, title:'Vegeta Nadert',           goal:'Verzamel 18x Vegeta', collectType:1, collectCount:18 },
   { level:8,  rows:8, cols:8, moves:22, targetScore:3500,  types:6, title:'Strijd om Aarde',         goal:'Behaal 3500 punten' },
-  { level:9,  rows:8, cols:8, moves:20, targetScore:4000,  types:6, title:'Reis naar Namek',         goal:'Verzamel 20 groene Ki', collectType:3, collectCount:20 },
+  { level:9,  rows:8, cols:8, moves:20, targetScore:4000,  types:6, title:'Reis naar Namek',         goal:'Verzamel 20x Piccolo', collectType:3, collectCount:20 },
   { level:10, rows:8, cols:8, moves:22, targetScore:4500,  types:7, title:'Ginyu Force',             goal:'Behaal 4500 punten' },
   { level:11, rows:8, cols:8, moves:20, targetScore:5000,  types:7, title:'Frieza Eerste Vorm',      goal:'Behaal 5000 punten' },
-  { level:12, rows:8, cols:8, moves:18, targetScore:5500,  types:7, title:'Frieza Transformeert',    goal:'Verzamel 22 paarse Ki', collectType:4, collectCount:22 },
+  { level:12, rows:8, cols:8, moves:18, targetScore:5500,  types:7, title:'Frieza Transformeert',    goal:'Verzamel 22x Frieza', collectType:4, collectCount:22 },
   { level:13, rows:8, cols:8, moves:20, targetScore:6000,  types:7, title:'Super Saiyan Goku!',      goal:'Behaal 6000 punten' },
   { level:14, rows:8, cols:8, moves:18, targetScore:6500,  types:7, title:'Terugkeer naar Aarde',    goal:'Behaal 6500 punten' },
-  { level:15, rows:8, cols:8, moves:18, targetScore:7000,  types:7, title:'Androids Verschijnen',    goal:'Verzamel 25 rode Ki', collectType:0, collectCount:25 },
+  { level:15, rows:8, cols:8, moves:18, targetScore:7000,  types:7, title:'Androids Verschijnen',    goal:'Verzamel 25x Goku', collectType:0, collectCount:25 },
   { level:16, rows:8, cols:8, moves:18, targetScore:7500,  types:7, title:'Cell Saga Begint',        goal:'Behaal 7500 punten' },
   { level:17, rows:8, cols:8, moves:16, targetScore:8000,  types:7, title:'Hyperbolic Time Chamber',goal:'Behaal 8000 punten' },
-  { level:18, rows:8, cols:8, moves:18, targetScore:8500,  types:7, title:'Cell Games',              goal:'Verzamel 25 gele Ki', collectType:2, collectCount:25 },
+  { level:18, rows:8, cols:8, moves:18, targetScore:8500,  types:7, title:'Cell Games',              goal:'Verzamel 25x Gohan', collectType:2, collectCount:25 },
   { level:19, rows:8, cols:8, moves:16, targetScore:9000,  types:7, title:'Gohan Ontketend',         goal:'Behaal 9000 punten' },
   { level:20, rows:8, cols:8, moves:16, targetScore:9500,  types:7, title:'Buu Saga Begint',         goal:'Behaal 9500 punten' },
-  { level:21, rows:8, cols:8, moves:15, targetScore:10000, types:7, title:'Majin Vegeta',            goal:'Verzamel 28 oranje Ki', collectType:5, collectCount:28 },
+  { level:21, rows:8, cols:8, moves:15, targetScore:10000, types:7, title:'Majin Vegeta',            goal:'Verzamel 28x Dragon Ball', collectType:5, collectCount:28 },
   { level:22, rows:8, cols:8, moves:15, targetScore:11000, types:7, title:'Super Buu',               goal:'Behaal 11000 punten' },
   { level:23, rows:8, cols:8, moves:14, targetScore:12000, types:7, title:'Vegito Fusie',            goal:'Behaal 12000 punten' },
-  { level:24, rows:8, cols:8, moves:14, targetScore:13000, types:7, title:'Kid Buu',                 goal:'Verzamel 30 blauwe Ki', collectType:1, collectCount:30 },
+  { level:24, rows:8, cols:8, moves:14, targetScore:13000, types:7, title:'Kid Buu',                 goal:'Verzamel 30x Vegeta', collectType:1, collectCount:30 },
   { level:25, rows:8, cols:8, moves:15, targetScore:15000, types:7, title:'Spirit Bomb Finale!',     goal:'Behaal 15000 punten - Eindbaas!' },
 ];
 
@@ -471,7 +471,7 @@ function resizeCanvas() {
 function setupTitleDeco() {
   const deco = document.getElementById('titleDeco');
   deco.innerHTML = '';
-  const emojis = ['🔴','🔵','🟡','🟢','🟣','🟠','⭐','💫','✨'];
+  const emojis = ['👊','⚡','🐉','🔮','💥','🌟','✨','💫','🟠'];
   for (let i = 0; i < 20; i++) {
     const el = document.createElement('div');
     el.className = 'db-float';
@@ -1040,90 +1040,471 @@ function showComboText(combo) {
 }
 
 // --- Rendering ---
+
+// Draw character-specific features on each gem
+function drawCharacter(cx, cy, r, type, gem) {
+  const s = r; // scale reference
+  switch(gem.char) {
+    case 'goku':
+      // Face circle
+      ctx.fillStyle = gem.skin;
+      ctx.beginPath();
+      ctx.arc(cx, cy + s*0.05, s*0.52, 0, Math.PI*2);
+      ctx.fill();
+      // Spiky hair (Super Saiyan style - 5 big spikes up)
+      ctx.fillStyle = '#111';
+      ctx.beginPath();
+      ctx.moveTo(cx - s*0.45, cy - s*0.05);
+      ctx.lineTo(cx - s*0.55, cy - s*0.65);
+      ctx.lineTo(cx - s*0.2, cy - s*0.3);
+      ctx.lineTo(cx - s*0.3, cy - s*0.85);
+      ctx.lineTo(cx - s*0.0, cy - s*0.35);
+      ctx.lineTo(cx + s*0.05, cy - s*0.9);
+      ctx.lineTo(cx + s*0.15, cy - s*0.35);
+      ctx.lineTo(cx + s*0.35, cy - s*0.8);
+      ctx.lineTo(cx + s*0.25, cy - s*0.25);
+      ctx.lineTo(cx + s*0.55, cy - s*0.55);
+      ctx.lineTo(cx + s*0.45, cy - s*0.05);
+      ctx.closePath();
+      ctx.fill();
+      // Eyes
+      ctx.fillStyle = '#111';
+      ctx.fillRect(cx - s*0.22, cy - s*0.02, s*0.13, s*0.08);
+      ctx.fillRect(cx + s*0.09, cy - s*0.02, s*0.13, s*0.08);
+      // Determined mouth
+      ctx.strokeStyle = '#111';
+      ctx.lineWidth = s*0.04;
+      ctx.beginPath();
+      ctx.moveTo(cx - s*0.12, cy + s*0.22);
+      ctx.lineTo(cx + s*0.12, cy + s*0.22);
+      ctx.stroke();
+      // Orange gi collar hint
+      ctx.fillStyle = gem.gi;
+      ctx.beginPath();
+      ctx.moveTo(cx - s*0.3, cy + s*0.45);
+      ctx.lineTo(cx, cy + s*0.32);
+      ctx.lineTo(cx + s*0.3, cy + s*0.45);
+      ctx.lineTo(cx + s*0.45, cy + s*0.55);
+      ctx.lineTo(cx - s*0.45, cy + s*0.55);
+      ctx.closePath();
+      ctx.fill();
+      break;
+
+    case 'vegeta':
+      // Face
+      ctx.fillStyle = gem.skin;
+      ctx.beginPath();
+      ctx.arc(cx, cy + s*0.1, s*0.48, 0, Math.PI*2);
+      ctx.fill();
+      // Vegeta's flame hair (tall, pointed, widow's peak)
+      ctx.fillStyle = '#111';
+      ctx.beginPath();
+      ctx.moveTo(cx - s*0.5, cy + s*0.0);
+      ctx.lineTo(cx - s*0.6, cy - s*0.7);
+      ctx.lineTo(cx - s*0.3, cy - s*0.25);
+      ctx.lineTo(cx - s*0.35, cy - s*0.95);
+      ctx.lineTo(cx - s*0.1, cy - s*0.35);
+      ctx.lineTo(cx, cy - s*0.85);
+      ctx.lineTo(cx + s*0.1, cy - s*0.35);
+      ctx.lineTo(cx + s*0.35, cy - s*0.95);
+      ctx.lineTo(cx + s*0.3, cy - s*0.25);
+      ctx.lineTo(cx + s*0.6, cy - s*0.7);
+      ctx.lineTo(cx + s*0.5, cy + s*0.0);
+      ctx.closePath();
+      ctx.fill();
+      // Widow's peak
+      ctx.beginPath();
+      ctx.moveTo(cx - s*0.25, cy - s*0.12);
+      ctx.lineTo(cx, cy + s*0.05);
+      ctx.lineTo(cx + s*0.25, cy - s*0.12);
+      ctx.lineTo(cx + s*0.35, cy - s*0.15);
+      ctx.lineTo(cx - s*0.35, cy - s*0.15);
+      ctx.closePath();
+      ctx.fill();
+      // Angry eyes
+      ctx.fillStyle = '#111';
+      ctx.save();
+      ctx.translate(cx - s*0.17, cy + s*0.05);
+      ctx.rotate(-0.15);
+      ctx.fillRect(-s*0.08, -s*0.04, s*0.15, s*0.07);
+      ctx.restore();
+      ctx.save();
+      ctx.translate(cx + s*0.17, cy + s*0.05);
+      ctx.rotate(0.15);
+      ctx.fillRect(-s*0.07, -s*0.04, s*0.15, s*0.07);
+      ctx.restore();
+      // Scowl mouth
+      ctx.strokeStyle = '#111';
+      ctx.lineWidth = s*0.04;
+      ctx.beginPath();
+      ctx.moveTo(cx - s*0.1, cy + s*0.25);
+      ctx.quadraticCurveTo(cx, cy + s*0.2, cx + s*0.1, cy + s*0.25);
+      ctx.stroke();
+      // Blue armor hint
+      ctx.fillStyle = gem.gi;
+      ctx.beginPath();
+      ctx.moveTo(cx - s*0.35, cy + s*0.48);
+      ctx.lineTo(cx, cy + s*0.35);
+      ctx.lineTo(cx + s*0.35, cy + s*0.48);
+      ctx.lineTo(cx + s*0.45, cy + s*0.55);
+      ctx.lineTo(cx - s*0.45, cy + s*0.55);
+      ctx.closePath();
+      ctx.fill();
+      break;
+
+    case 'gohan':
+      // Face
+      ctx.fillStyle = gem.skin;
+      ctx.beginPath();
+      ctx.arc(cx, cy + s*0.08, s*0.5, 0, Math.PI*2);
+      ctx.fill();
+      // Teen Gohan SSJ2 hair (spiky but different from Goku - more bangs)
+      ctx.fillStyle = '#111';
+      ctx.beginPath();
+      ctx.moveTo(cx - s*0.48, cy + s*0.0);
+      ctx.lineTo(cx - s*0.65, cy - s*0.45);
+      ctx.lineTo(cx - s*0.3, cy - s*0.2);
+      ctx.lineTo(cx - s*0.4, cy - s*0.75);
+      ctx.lineTo(cx - s*0.12, cy - s*0.3);
+      ctx.lineTo(cx - s*0.05, cy - s*0.8);
+      ctx.lineTo(cx + s*0.08, cy - s*0.28);
+      ctx.lineTo(cx + s*0.2, cy - s*0.72);
+      ctx.lineTo(cx + s*0.28, cy - s*0.2);
+      ctx.lineTo(cx + s*0.5, cy - s*0.55);
+      ctx.lineTo(cx + s*0.48, cy + s*0.0);
+      ctx.closePath();
+      ctx.fill();
+      // One bang hanging down
+      ctx.beginPath();
+      ctx.moveTo(cx - s*0.15, cy - s*0.18);
+      ctx.lineTo(cx - s*0.22, cy + s*0.1);
+      ctx.lineTo(cx - s*0.05, cy - s*0.1);
+      ctx.closePath();
+      ctx.fill();
+      // Determined eyes
+      ctx.fillStyle = '#111';
+      ctx.fillRect(cx - s*0.22, cy + s*0.0, s*0.12, s*0.07);
+      ctx.fillRect(cx + s*0.1, cy + s*0.0, s*0.12, s*0.07);
+      // Open mouth (powering up)
+      ctx.fillStyle = '#111';
+      ctx.beginPath();
+      ctx.arc(cx, cy + s*0.28, s*0.08, 0, Math.PI);
+      ctx.fill();
+      // Red gi
+      ctx.fillStyle = gem.gi;
+      ctx.beginPath();
+      ctx.moveTo(cx - s*0.3, cy + s*0.48);
+      ctx.lineTo(cx, cy + s*0.35);
+      ctx.lineTo(cx + s*0.3, cy + s*0.48);
+      ctx.lineTo(cx + s*0.45, cy + s*0.55);
+      ctx.lineTo(cx - s*0.45, cy + s*0.55);
+      ctx.closePath();
+      ctx.fill();
+      break;
+
+    case 'piccolo':
+      // Green face
+      ctx.fillStyle = gem.skin;
+      ctx.beginPath();
+      ctx.arc(cx, cy + s*0.1, s*0.48, 0, Math.PI*2);
+      ctx.fill();
+      // Turban/helmet shape
+      ctx.fillStyle = '#e8e8e0';
+      ctx.beginPath();
+      ctx.arc(cx, cy - s*0.15, s*0.42, Math.PI, 0);
+      ctx.lineTo(cx + s*0.5, cy - s*0.15);
+      ctx.lineTo(cx - s*0.5, cy - s*0.15);
+      ctx.closePath();
+      ctx.fill();
+      // Turban front piece
+      ctx.fillStyle = '#e8e8e0';
+      ctx.beginPath();
+      ctx.moveTo(cx - s*0.2, cy - s*0.15);
+      ctx.lineTo(cx, cy - s*0.05);
+      ctx.lineTo(cx + s*0.2, cy - s*0.15);
+      ctx.closePath();
+      ctx.fill();
+      // Antennae
+      ctx.strokeStyle = gem.skin;
+      ctx.lineWidth = s*0.06;
+      ctx.beginPath();
+      ctx.moveTo(cx - s*0.1, cy - s*0.45);
+      ctx.quadraticCurveTo(cx - s*0.2, cy - s*0.85, cx - s*0.05, cy - s*0.9);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(cx + s*0.1, cy - s*0.45);
+      ctx.quadraticCurveTo(cx + s*0.2, cy - s*0.85, cx + s*0.05, cy - s*0.9);
+      ctx.stroke();
+      // Stern eyes
+      ctx.fillStyle = '#111';
+      ctx.fillRect(cx - s*0.22, cy + s*0.02, s*0.14, s*0.06);
+      ctx.fillRect(cx + s*0.08, cy + s*0.02, s*0.14, s*0.06);
+      // Frown
+      ctx.strokeStyle = '#3a6a2a';
+      ctx.lineWidth = s*0.04;
+      ctx.beginPath();
+      ctx.moveTo(cx - s*0.1, cy + s*0.25);
+      ctx.lineTo(cx + s*0.1, cy + s*0.25);
+      ctx.stroke();
+      // Purple gi cape hint
+      ctx.fillStyle = gem.gi;
+      ctx.beginPath();
+      ctx.moveTo(cx - s*0.45, cy + s*0.4);
+      ctx.lineTo(cx, cy + s*0.32);
+      ctx.lineTo(cx + s*0.45, cy + s*0.4);
+      ctx.lineTo(cx + s*0.5, cy + s*0.55);
+      ctx.lineTo(cx - s*0.5, cy + s*0.55);
+      ctx.closePath();
+      ctx.fill();
+      break;
+
+    case 'frieza':
+      // White/pink head
+      ctx.fillStyle = gem.skin;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy + s*0.08, s*0.4, s*0.48, 0, 0, Math.PI*2);
+      ctx.fill();
+      // Purple dome/crest on head
+      ctx.fillStyle = '#7733aa';
+      ctx.beginPath();
+      ctx.ellipse(cx, cy - s*0.2, s*0.3, s*0.2, 0, Math.PI, 0);
+      ctx.fill();
+      // Horns (final form style)
+      ctx.strokeStyle = '#e8d8f0';
+      ctx.lineWidth = s*0.06;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(cx - s*0.3, cy - s*0.25);
+      ctx.quadraticCurveTo(cx - s*0.55, cy - s*0.6, cx - s*0.35, cy - s*0.85);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(cx + s*0.3, cy - s*0.25);
+      ctx.quadraticCurveTo(cx + s*0.55, cy - s*0.6, cx + s*0.35, cy - s*0.85);
+      ctx.stroke();
+      ctx.lineCap = 'butt';
+      // Evil red eyes
+      ctx.fillStyle = '#cc0033';
+      ctx.beginPath();
+      ctx.ellipse(cx - s*0.15, cy + s*0.0, s*0.08, s*0.05, 0, 0, Math.PI*2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(cx + s*0.15, cy + s*0.0, s*0.08, s*0.05, 0, 0, Math.PI*2);
+      ctx.fill();
+      // Black pupils
+      ctx.fillStyle = '#111';
+      ctx.beginPath();
+      ctx.arc(cx - s*0.15, cy + s*0.0, s*0.03, 0, Math.PI*2);
+      ctx.arc(cx + s*0.15, cy + s*0.0, s*0.03, 0, Math.PI*2);
+      ctx.fill();
+      // Smirk
+      ctx.strokeStyle = '#9977aa';
+      ctx.lineWidth = s*0.03;
+      ctx.beginPath();
+      ctx.moveTo(cx - s*0.1, cy + s*0.2);
+      ctx.quadraticCurveTo(cx, cy + s*0.15, cx + s*0.12, cy + s*0.18);
+      ctx.stroke();
+      // Chest armor hint
+      ctx.fillStyle = gem.gi;
+      ctx.beginPath();
+      ctx.moveTo(cx - s*0.3, cy + s*0.42);
+      ctx.lineTo(cx, cy + s*0.33);
+      ctx.lineTo(cx + s*0.3, cy + s*0.42);
+      ctx.lineTo(cx + s*0.4, cy + s*0.55);
+      ctx.lineTo(cx - s*0.4, cy + s*0.55);
+      ctx.closePath();
+      ctx.fill();
+      break;
+
+    case 'dragonball':
+      // Already drawn as orb - just add stars
+      const starCount = ((game.currentLevel - 1) % 7) + 1;
+      ctx.fillStyle = 'rgba(180,0,0,0.8)';
+      if (starCount === 1) {
+        drawStar(cx, cy, s*0.18, 5);
+      } else {
+        for (let i = 0; i < starCount; i++) {
+          const angle = (i / starCount) * Math.PI * 2 - Math.PI / 2;
+          const dist = starCount <= 3 ? s*0.25 : s*0.32;
+          const sx = cx + Math.cos(angle) * dist;
+          const sy = cy + Math.sin(angle) * dist;
+          drawStar(sx, sy, s * (starCount <= 4 ? 0.12 : 0.09), 5);
+        }
+      }
+      // Shine lines
+      ctx.strokeStyle = 'rgba(255,255,200,0.4)';
+      ctx.lineWidth = s*0.03;
+      ctx.beginPath();
+      ctx.moveTo(cx - s*0.55, cy - s*0.55);
+      ctx.lineTo(cx - s*0.35, cy - s*0.35);
+      ctx.moveTo(cx - s*0.6, cy - s*0.3);
+      ctx.lineTo(cx - s*0.4, cy - s*0.2);
+      ctx.stroke();
+      break;
+
+    case 'trunks':
+      // Face
+      ctx.fillStyle = gem.skin;
+      ctx.beginPath();
+      ctx.arc(cx, cy + s*0.08, s*0.48, 0, Math.PI*2);
+      ctx.fill();
+      // Purple/lavender bowl-cut hair
+      ctx.fillStyle = gem.hair;
+      ctx.beginPath();
+      ctx.arc(cx, cy - s*0.1, s*0.45, Math.PI, 0);
+      ctx.lineTo(cx + s*0.5, cy + s*0.0);
+      ctx.quadraticCurveTo(cx + s*0.45, cy - s*0.05, cx + s*0.35, cy + s*0.05);
+      ctx.lineTo(cx - s*0.35, cy + s*0.05);
+      ctx.quadraticCurveTo(cx - s*0.45, cy - s*0.05, cx - s*0.5, cy + s*0.0);
+      ctx.closePath();
+      ctx.fill();
+      // Hair bang detail
+      ctx.beginPath();
+      ctx.moveTo(cx - s*0.1, cy - s*0.1);
+      ctx.lineTo(cx + s*0.1, cy + s*0.05);
+      ctx.lineTo(cx + s*0.25, cy - s*0.05);
+      ctx.closePath();
+      ctx.fill();
+      // Eyes
+      ctx.fillStyle = '#3366cc';
+      ctx.beginPath();
+      ctx.ellipse(cx - s*0.16, cy + s*0.08, s*0.07, s*0.05, 0, 0, Math.PI*2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(cx + s*0.16, cy + s*0.08, s*0.07, s*0.05, 0, 0, Math.PI*2);
+      ctx.fill();
+      // Pupils
+      ctx.fillStyle = '#111';
+      ctx.beginPath();
+      ctx.arc(cx - s*0.16, cy + s*0.08, s*0.03, 0, Math.PI*2);
+      ctx.arc(cx + s*0.16, cy + s*0.08, s*0.03, 0, Math.PI*2);
+      ctx.fill();
+      // Mouth
+      ctx.strokeStyle = '#111';
+      ctx.lineWidth = s*0.03;
+      ctx.beginPath();
+      ctx.moveTo(cx - s*0.08, cy + s*0.25);
+      ctx.lineTo(cx + s*0.08, cy + s*0.25);
+      ctx.stroke();
+      // Capsule Corp jacket
+      ctx.fillStyle = gem.gi;
+      ctx.beginPath();
+      ctx.moveTo(cx - s*0.35, cy + s*0.45);
+      ctx.lineTo(cx, cy + s*0.34);
+      ctx.lineTo(cx + s*0.35, cy + s*0.45);
+      ctx.lineTo(cx + s*0.45, cy + s*0.55);
+      ctx.lineTo(cx - s*0.45, cy + s*0.55);
+      ctx.closePath();
+      ctx.fill();
+      // Sword hint behind back
+      ctx.strokeStyle = '#aaaacc';
+      ctx.lineWidth = s*0.05;
+      ctx.beginPath();
+      ctx.moveTo(cx + s*0.3, cy + s*0.5);
+      ctx.lineTo(cx + s*0.4, cy - s*0.7);
+      ctx.stroke();
+      ctx.fillStyle = '#ddcc44';
+      ctx.fillRect(cx + s*0.35, cy - s*0.72, s*0.12, s*0.06);
+      break;
+  }
+}
+
 function drawGem(x, y, type, size, alpha, special) {
   const gem = GEM_TYPES[type];
   if (!gem) return;
   const cx = x + size / 2;
   const cy = y + size / 2;
-  const r = size * 0.38;
+  const r = size * 0.42;
 
   ctx.save();
   ctx.globalAlpha = alpha;
 
-  // Glow
-  const glow = ctx.createRadialGradient(cx, cy, r * 0.3, cx, cy, r * 1.4);
-  glow.addColorStop(0, gem.glow + '44');
+  // Outer glow (ki aura)
+  const glow = ctx.createRadialGradient(cx, cy, r * 0.5, cx, cy, r * 1.5);
+  glow.addColorStop(0, gem.glow + '55');
+  glow.addColorStop(0.7, gem.glow + '22');
   glow.addColorStop(1, gem.glow + '00');
   ctx.fillStyle = glow;
   ctx.beginPath();
-  ctx.arc(cx, cy, r * 1.4, 0, Math.PI * 2);
+  ctx.arc(cx, cy, r * 1.5, 0, Math.PI * 2);
   ctx.fill();
 
-  // Main orb gradient
-  const grad = ctx.createRadialGradient(cx - r * 0.3, cy - r * 0.3, r * 0.1, cx, cy, r);
+  // Background circle with gradient
+  const grad = ctx.createRadialGradient(cx - r*0.2, cy - r*0.2, r*0.1, cx, cy, r);
   grad.addColorStop(0, gem.gradient[0]);
-  grad.addColorStop(0.7, gem.color);
+  grad.addColorStop(0.6, gem.color);
   grad.addColorStop(1, gem.gradient[1]);
   ctx.fillStyle = grad;
   ctx.beginPath();
   ctx.arc(cx, cy, r, 0, Math.PI * 2);
   ctx.fill();
 
-  // Inner shine
-  ctx.fillStyle = 'rgba(255,255,255,0.35)';
+  // Subtle border ring
+  ctx.strokeStyle = gem.gradient[1];
+  ctx.lineWidth = 1.5;
   ctx.beginPath();
-  ctx.ellipse(cx - r * 0.15, cy - r * 0.25, r * 0.45, r * 0.3, -0.5, 0, Math.PI * 2);
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Clip to circle for character drawing
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx, cy, r * 0.95, 0, Math.PI * 2);
+  ctx.clip();
+
+  // Draw the character
+  drawCharacter(cx, cy, r, type, gem);
+
+  ctx.restore();
+
+  // Glass shine overlay
+  ctx.fillStyle = 'rgba(255,255,255,0.18)';
+  ctx.beginPath();
+  ctx.ellipse(cx - r*0.1, cy - r*0.25, r*0.55, r*0.35, -0.3, 0, Math.PI*2);
   ctx.fill();
 
-  // Tiny highlight
-  ctx.fillStyle = 'rgba(255,255,255,0.7)';
+  // Tiny bright highlight
+  ctx.fillStyle = 'rgba(255,255,255,0.55)';
   ctx.beginPath();
-  ctx.arc(cx - r * 0.25, cy - r * 0.3, r * 0.12, 0, Math.PI * 2);
+  ctx.arc(cx - r*0.25, cy - r*0.3, r*0.1, 0, Math.PI*2);
   ctx.fill();
 
-  // Star pattern for Dragon Ball type
-  if (type === 5) {
-    const starCount = Math.min(4, game.currentLevel % 7 + 1);
-    ctx.fillStyle = 'rgba(180,0,0,0.7)';
-    for (let i = 0; i < starCount; i++) {
-      const angle = (i / starCount) * Math.PI * 2 - Math.PI / 2;
-      const sx = cx + Math.cos(angle) * r * 0.4;
-      const sy = cy + Math.sin(angle) * r * 0.4;
-      drawStar(sx, sy, r * 0.12, 5);
-    }
-  }
-
-  // Special indicator
+  // Special indicator (over character)
   if (special) {
     ctx.strokeStyle = '#fff';
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 2.5;
+    ctx.shadowColor = '#fff';
+    ctx.shadowBlur = 6;
     if (special === 'row') {
       ctx.beginPath();
-      ctx.moveTo(cx - r * 0.6, cy);
-      ctx.lineTo(cx + r * 0.6, cy);
+      ctx.moveTo(cx - r*0.7, cy);
+      ctx.lineTo(cx + r*0.7, cy);
       ctx.stroke();
-      // Arrows
       ctx.beginPath();
-      ctx.moveTo(cx - r * 0.6, cy); ctx.lineTo(cx - r * 0.3, cy - r * 0.2); ctx.moveTo(cx - r * 0.6, cy); ctx.lineTo(cx - r * 0.3, cy + r * 0.2);
-      ctx.moveTo(cx + r * 0.6, cy); ctx.lineTo(cx + r * 0.3, cy - r * 0.2); ctx.moveTo(cx + r * 0.6, cy); ctx.lineTo(cx + r * 0.3, cy + r * 0.2);
+      ctx.moveTo(cx - r*0.7, cy); ctx.lineTo(cx - r*0.4, cy - r*0.2);
+      ctx.moveTo(cx - r*0.7, cy); ctx.lineTo(cx - r*0.4, cy + r*0.2);
+      ctx.moveTo(cx + r*0.7, cy); ctx.lineTo(cx + r*0.4, cy - r*0.2);
+      ctx.moveTo(cx + r*0.7, cy); ctx.lineTo(cx + r*0.4, cy + r*0.2);
       ctx.stroke();
     } else if (special === 'col') {
       ctx.beginPath();
-      ctx.moveTo(cx, cy - r * 0.6);
-      ctx.lineTo(cx, cy + r * 0.6);
+      ctx.moveTo(cx, cy - r*0.7);
+      ctx.lineTo(cx, cy + r*0.7);
       ctx.stroke();
       ctx.beginPath();
-      ctx.moveTo(cx, cy - r * 0.6); ctx.lineTo(cx - r * 0.2, cy - r * 0.3); ctx.moveTo(cx, cy - r * 0.6); ctx.lineTo(cx + r * 0.2, cy - r * 0.3);
-      ctx.moveTo(cx, cy + r * 0.6); ctx.lineTo(cx - r * 0.2, cy + r * 0.3); ctx.moveTo(cx, cy + r * 0.6); ctx.lineTo(cx + r * 0.2, cy + r * 0.3);
+      ctx.moveTo(cx, cy - r*0.7); ctx.lineTo(cx - r*0.2, cy - r*0.4);
+      ctx.moveTo(cx, cy - r*0.7); ctx.lineTo(cx + r*0.2, cy - r*0.4);
+      ctx.moveTo(cx, cy + r*0.7); ctx.lineTo(cx - r*0.2, cy + r*0.4);
+      ctx.moveTo(cx, cy + r*0.7); ctx.lineTo(cx + r*0.2, cy + r*0.4);
       ctx.stroke();
     } else if (special === 'bomb') {
       ctx.beginPath();
-      ctx.arc(cx, cy, r * 0.7, 0, Math.PI * 2);
+      ctx.arc(cx, cy, r*0.75, 0, Math.PI*2);
       ctx.stroke();
       ctx.beginPath();
-      ctx.arc(cx, cy, r * 0.4, 0, Math.PI * 2);
+      ctx.arc(cx, cy, r*0.45, 0, Math.PI*2);
       ctx.stroke();
     }
+    ctx.shadowBlur = 0;
   }
 
   ctx.restore();
