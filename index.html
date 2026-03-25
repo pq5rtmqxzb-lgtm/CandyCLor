@@ -17,14 +17,16 @@ h1{font-size:1.3rem;color:#f5a623}
 #hud span{color:#f5a623;font-weight:bold}
 canvas{display:block;border:2px solid #f5a623;border-radius:6px;touch-action:none}
 #msg{margin-top:4px;font-size:.8rem;color:#aaa;text-align:center;padding:0 8px;min-height:1.1rem}
-#pad{display:none;margin-top:6px;position:relative;width:140px;height:140px}
-#pad button{position:absolute;width:44px;height:44px;border:2px solid #f5a623;
-background:rgba(245,166,35,.15);color:#f5a623;font-size:1.3rem;border-radius:10px;
+#pad{display:none;margin-top:6px;
+width:162px;height:162px;
+display:none;grid-template-columns:repeat(3,50px);grid-template-rows:repeat(3,50px);gap:6px}
+#pad button{width:50px;height:50px;border:2px solid #f5a623;
+background:rgba(245,166,35,.15);color:#f5a623;font-size:1.4rem;border-radius:12px;
 display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 #pad button:active{background:rgba(245,166,35,.4)}
-.u{top:0;left:48px}.d{bottom:0;left:48px}.l{top:48px;left:0}.r{top:48px;right:0}
-.c{top:48px;left:48px;border-color:#666;background:rgba(100,100,100,.1);color:#666;font-size:.55rem}
-@media(pointer:coarse),(max-width:600px){#pad{display:block}}
+.e{visibility:hidden}
+.c{border-color:#666;background:rgba(100,100,100,.1);color:#666;font-size:.55rem}
+@media(pointer:coarse),(max-width:600px){#pad{display:grid}}
 </style>
 </head>
 <body>
@@ -34,8 +36,9 @@ display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-col
 <canvas id="cv"></canvas>
 <div id="msg"></div>
 <div id="pad">
-<button class="u">&#9650;</button><button class="l">&#9664;</button>
-<button class="c">R</button><button class="r">&#9654;</button><button class="d">&#9660;</button>
+<button class="e"></button><button class="u">&#9650;</button><button class="e"></button>
+<button class="l">&#9664;</button><button class="c">R</button><button class="r">&#9654;</button>
+<button class="e"></button><button class="d">&#9660;</button><button class="e"></button>
 </div>
 <script>
 try{
