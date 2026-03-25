@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Dragon Ball Z - Ki Crush</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: #0a0a1a;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+#gameCanvas {
+  display: block;
+  margin: 0 auto;
+  touch-action: none;
+}
+#screens {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.screen { display: none; flex-direction: column; align-items: center; width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
+.screen.active { display: flex; }
+
+/* Title Screen */
+#titleScreen {
+  background: linear-gradient(180deg, #0a0a2e 0%, #1a0a3e 40%, #2a1a0e 70%, #1a0a00 100%);
+  justify-content: center; align-items: center;
+  overflow: hidden;
+}
+.title-logo {
+  font-size: clamp(30px, 10vw, 42px); font-weight: 900; text-align: center;
+  color: #ff8c00; text-shadow: 0 0 20px #ff6600, 0 0 40px #ff4400, 0 2px 0 #cc5500;
+  letter-spacing: 2px; line-height: 1.1;
+  animation: titlePulse 2s ease-in-out infinite;
+  margin-bottom: 8px; padding: 0 10px;
+}
+.title-sub {
+  font-size: 28px; font-weight: 800; color: #ffd700;
+  text-shadow: 0 0 15px #ffaa00, 0 0 30px #ff8800;
+  letter-spacing: 6px; margin-bottom: 40px;
+}
+@keyframes titlePulse {
+  0%, 100% { transform: scale(1); filter: brightness(1); }
+  50% { transform: scale(1.03); filter: brightness(1.2); }
+}
+.btn {
+  padding: 16px 48px; border: none; border-radius: 50px; font-size: 20px; font-weight: 800;
+  cursor: pointer; letter-spacing: 2px; text-transform: uppercase;
+  transition: all 0.2s; position: relative; overflow: hidden;
+}
+.btn-play {
+  background: linear-gradient(135deg, #ff6b00, #ff8c00, #ffa500);
+  color: #fff; box-shadow: 0 4px 20px rgba(255,100,0,0.5), inset 0 1px 0 rgba(255,255,255,0.3);
+  margin-bottom: 16px;
+}
+.btn-play:active { transform: scale(0.95); }
+.btn-continue {
+  background: linear-gradient(135deg, #2196F3, #42A5F5);
+  color: #fff; box-shadow: 0 4px 20px rgba(33,150,243,0.4);
+  font-size: 16px; padding: 12px 36px;
+}
+.btn-continue:active { transform: scale(0.95); }
+.dragon-balls-deco {
+  position: absolute; width: 100%; height: 100%; pointer-events: none;
+}
+.db-float {
+  position: absolute; font-size: 30px; opacity: 0.15;
+  animation: dbFloat 8s ease-in-out infinite;
+}
+@keyframes dbFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(180deg); }
+}
+
+/* Level Select */
+#levelScreen {
+  background: linear-gradient(180deg, #0a0a2e 0%, #1a0a3e 100%);
+  padding: env(safe-area-inset-top, 20px) 8px 16px 8px;
+}
+.level-header {
+  font-size: 24px; font-weight: 800; color: #ff8c00;
+  text-shadow: 0 0 10px rgba(255,140,0,0.5);
+  margin: 12px 0; text-align: center;
+}
+.level-grid {
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  gap: 6px; width: calc(100% - 8px); max-width: 380px;
+  padding: 4px; overflow-y: auto; flex: 1;
+  margin: 0 auto;
+}
+.level-btn {
+  aspect-ratio: 1; border: 2px solid #333; border-radius: 10px;
+  background: linear-gradient(135deg, #1a1a3a, #2a2a4a);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.2s; position: relative;
+  min-width: 0;
+}
+.level-btn.unlocked {
+  border-color: #ff8c00; background: linear-gradient(135deg, #2a1a0a, #3a2a1a);
+}
+.level-btn.unlocked:active { transform: scale(0.9); }
+.level-btn.completed {
+  border-color: #4CAF50; background: linear-gradient(135deg, #0a2a1a, #1a3a2a);
+}
+.level-btn.locked { opacity: 0.4; pointer-events: none; }
+.level-num { font-size: 18px; font-weight: 800; color: #fff; }
+.level-stars { font-size: 10px; margin-top: 2px; }
+.star-on { color: #ffd700; }
+.star-off { color: #444; }
+.back-btn {
+  background: none; border: 2px solid #ff8c00; color: #ff8c00;
+  padding: 10px 30px; border-radius: 25px; font-size: 16px; font-weight: 700;
+  cursor: pointer; margin: 12px 0;
+}
+.back-btn:active { background: rgba(255,140,0,0.2); }
+
+/* Game HUD */
+#gameScreen { background: #0a0a1a; }
+.game-hud {
+  width: 100%; display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 16px; padding-top: max(8px, env(safe-area-inset-top));
+  background: linear-gradient(180deg, rgba(0,0,0,0.9), rgba(0,0,0,0.3));
+  position: absolute; top: 0; left: 0; z-index: 10;
+}
+.hud-section { text-align: center; }
+.hud-label { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+.hud-value { font-size: 22px; font-weight: 800; color: #fff; }
+.hud-value.score-val { color: #ffd700; }
+.hud-value.moves-val { color: #42A5F5; }
+.hud-value.target-val { color: #ff8c00; }
+.hud-progress {
+  width: 100%; height: 4px; background: #333; position: absolute;
+  bottom: 0; left: 0;
+}
+.hud-progress-fill {
+  height: 100%; background: linear-gradient(90deg, #ff6b00, #ffd700);
+  transition: width 0.3s;
+}
+.game-canvas-wrap {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  width: 100%; position: relative;
+}
+.game-goal {
+  position: absolute; top: 60px; left: 0; width: 100%;
+  text-align: center; color: #aaa; font-size: 12px; padding: 4px;
+  background: rgba(0,0,0,0.5); z-index: 5;
+}
+
+/* Result Overlay */
+#resultOverlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.85); display: none;
+  flex-direction: column; align-items: center; justify-content: center;
+  z-index: 100;
+}
+#resultOverlay.active { display: flex; }
+.result-title {
+  font-size: 36px; font-weight: 900; margin-bottom: 10px;
+}
+.result-win { color: #ffd700; text-shadow: 0 0 20px rgba(255,215,0,0.5); }
+.result-lose { color: #f44336; text-shadow: 0 0 20px rgba(244,67,54,0.5); }
+.result-stars { font-size: 40px; margin: 15px 0; }
+.result-score { font-size: 20px; color: #fff; margin-bottom: 25px; }
+.result-btns { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; padding: 0 16px; }
+.btn-retry {
+  background: linear-gradient(135deg, #f44336, #e53935);
+  color: #fff; box-shadow: 0 4px 15px rgba(244,67,54,0.4);
+  padding: 12px 24px; font-size: 14px;
+}
+.btn-next {
+  background: linear-gradient(135deg, #4CAF50, #43A047);
+  color: #fff; box-shadow: 0 4px 15px rgba(76,175,80,0.4);
+  padding: 12px 24px; font-size: 14px;
+}
+.btn-retry:active, .btn-next:active { transform: scale(0.95); }
+
+/* Particles */
+.ki-particle {
+  position: absolute; border-radius: 50%; pointer-events: none;
+  animation: kiFloat 3s ease-out forwards;
+}
+@keyframes kiFloat {
+  0% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-60px) scale(0); }
+}
+
+/* Combo text */
+.combo-text {
+  position: absolute; font-size: 24px; font-weight: 900;
+  color: #ffd700; text-shadow: 0 0 10px #ff8800;
+  pointer-events: none; z-index: 50;
+  animation: comboAnim 1s ease-out forwards;
+}
+@keyframes comboAnim {
+  0% { opacity: 1; transform: translateY(0) scale(0.5); }
+  30% { transform: translateY(-10px) scale(1.2); }
+  100% { opacity: 0; transform: translateY(-50px) scale(0.8); }
+}
+
+/* Power charge bar */
+.power-bar-wrap {
+  position: absolute; bottom: max(16px, env(safe-area-inset-bottom));
+  left: 50%; transform: translateX(-50%);
+  width: 80%; max-width: 340px; z-index: 10;
+}
+.power-bar-bg {
+  width: 100%; height: 8px; background: #222; border-radius: 4px;
+  overflow: hidden; border: 1px solid #444;
+}
+.power-bar-fill {
+  height: 100%; width: 0%; border-radius: 4px;
+  background: linear-gradient(90deg, #ff4444, #ff8800, #ffdd00);
+  transition: width 0.3s; position: relative;
+}
+.power-label {
+  text-align: center; font-size: 10px; color: #ff8c00;
+  margin-top: 2px; letter-spacing: 2px; text-transform: uppercase;
+}
+</style>
+</head>
+<body>
+
+<div id="screens">
+  <!-- TITLE SCREEN -->
+  <div id="titleScreen" class="screen active">
+    <div class="dragon-balls-deco" id="titleDeco"></div>
+    <div class="title-logo">DRAGON BALL Z</div>
+    <div class="title-sub">KI CRUSH</div>
+    <button class="btn btn-play" onclick="showLevelSelect()">SPELEN</button>
+    <button class="btn btn-continue" id="continueBtn" style="display:none" onclick="continueGame()">DOORGAAN</button>
+  </div>
+
+  <!-- LEVEL SELECT -->
+  <div id="levelScreen" class="screen">
+    <div class="level-header">KIES JE LEVEL</div>
+    <div class="level-grid" id="levelGrid"></div>
+    <button class="back-btn" onclick="showTitle()">← TERUG</button>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="gameScreen" class="screen">
+    <div class="game-hud">
+      <div class="hud-section">
+        <div class="hud-label">Score</div>
+        <div class="hud-value score-val" id="hudScore">0</div>
+      </div>
+      <div class="hud-section">
+        <div class="hud-label">Level</div>
+        <div class="hud-value target-val" id="hudLevel">1</div>
+      </div>
+      <div class="hud-section">
+        <div class="hud-label">Zetten</div>
+        <div class="hud-value moves-val" id="hudMoves">20</div>
+      </div>
+      <div class="hud-progress"><div class="hud-progress-fill" id="hudProgress"></div></div>
+    </div>
+    <div class="game-goal" id="gameGoal"></div>
+    <div class="game-canvas-wrap">
+      <canvas id="gameCanvas"></canvas>
+    </div>
+    <div class="power-bar-wrap">
+      <div class="power-bar-bg"><div class="power-bar-fill" id="powerFill"></div></div>
+      <div class="power-label">Ki Power</div>
+    </div>
+  </div>
+</div>
+
+<!-- Result Overlay -->
+<div id="resultOverlay">
+  <div class="result-title" id="resultTitle"></div>
+  <div class="result-stars" id="resultStars"></div>
+  <div class="result-score" id="resultScore"></div>
+  <div class="result-btns">
+    <button class="btn btn-retry" onclick="retryLevel()">OPNIEUW</button>
+    <button class="btn btn-next" id="nextBtn" onclick="nextLevel()">VOLGENDE</button>
+    <button class="btn back-btn" onclick="backToLevels()" style="margin:0">LEVELS</button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// DRAGON BALL Z - KI CRUSH
+// A match-3 puzzle game with 25 levels
+// ============================================================
+
+// --- Audio Engine ---
+const AudioEngine = {
+  ctx: null,
+  init() {
+    if (this.ctx) return;
+    try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+  },
+  play(type) {
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+    const g = this.ctx.createGain();
+    const o = this.ctx.createOscillator();
+    g.connect(this.ctx.destination);
+    o.connect(g);
+    switch(type) {
+      case 'swap':
+        o.frequency.setValueAtTime(400, now);
+        o.frequency.exponentialRampToValueAtTime(600, now + 0.1);
+        g.gain.setValueAtTime(0.15, now);
+        g.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+        o.start(now); o.stop(now + 0.15);
+        break;
+      case 'match':
+        o.frequency.setValueAtTime(523, now);
+        o.frequency.exponentialRampToValueAtTime(784, now + 0.15);
+        g.gain.setValueAtTime(0.2, now);
+        g.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+        o.start(now); o.stop(now + 0.25);
+        break;
+      case 'combo':
+        o.type = 'sawtooth';
+        o.frequency.setValueAtTime(600, now);
+        o.frequency.exponentialRampToValueAtTime(1200, now + 0.2);
+        g.gain.setValueAtTime(0.15, now);
+        g.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+        o.start(now); o.stop(now + 0.3);
+        break;
+      case 'win':
+        [523,659,784,1047].forEach((f,i) => {
+          const oo = this.ctx.createOscillator();
+          const gg = this.ctx.createGain();
+          oo.connect(gg); gg.connect(this.ctx.destination);
+          oo.frequency.setValueAtTime(f, now + i*0.15);
+          gg.gain.setValueAtTime(0.15, now + i*0.15);
+          gg.gain.exponentialRampToValueAtTime(0.01, now + i*0.15 + 0.3);
+          oo.start(now + i*0.15); oo.stop(now + i*0.15 + 0.3);
+        });
+        break;
+      case 'lose':
+        o.frequency.setValueAtTime(400, now);
+        o.frequency.exponentialRampToValueAtTime(150, now + 0.4);
+        g.gain.setValueAtTime(0.2, now);
+        g.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+        o.start(now); o.stop(now + 0.5);
+        break;
+      case 'special':
+        o.type = 'sine';
+        o.frequency.setValueAtTime(800, now);
+        o.frequency.exponentialRampToValueAtTime(1600, now + 0.1);
+        o.frequency.exponentialRampToValueAtTime(800, now + 0.2);
+        o.frequency.exponentialRampToValueAtTime(1600, now + 0.3);
+        g.gain.setValueAtTime(0.2, now);
+        g.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+        o.start(now); o.stop(now + 0.4);
+        break;
+    }
+  }
+};
+
+// --- Gem Types ---
+const GEM_TYPES = [
+  { id: 0, name: 'Ki Blast',   color: '#ff4444', glow: '#ff0000', icon: '🔴', gradient: ['#ff6666','#cc0000'] },
+  { id: 1, name: 'Ki Orb',     color: '#4488ff', glow: '#0044ff', icon: '🔵', gradient: ['#66aaff','#0044cc'] },
+  { id: 2, name: 'Super Ki',   color: '#ffcc00', glow: '#ffaa00', icon: '🟡', gradient: ['#ffdd44','#cc9900'] },
+  { id: 3, name: 'Namek Ki',   color: '#44cc44', glow: '#00aa00', icon: '🟢', gradient: ['#66ee66','#008800'] },
+  { id: 4, name: 'Frieza Ki',  color: '#cc44ff', glow: '#8800cc', icon: '🟣', gradient: ['#dd66ff','#7700aa'] },
+  { id: 5, name: 'Dragon Ball', color: '#ff8800', glow: '#ff6600', icon: '🟠', gradient: ['#ffaa44','#cc5500'] },
+  { id: 6, name: 'Senzu Bean', color: '#00cccc', glow: '#009999', icon: '💎', gradient: ['#44eeee','#007777'] },
+];
+
+// --- Level Definitions ---
+const LEVELS = [
+  { level:1,  rows:7, cols:7, moves:25, targetScore:800,   types:5, title:'Aarde - Begin',          goal:'Behaal 800 punten' },
+  { level:2,  rows:7, cols:7, moves:22, targetScore:1200,  types:5, title:'Kame House',              goal:'Behaal 1200 punten' },
+  { level:3,  rows:7, cols:7, moves:20, targetScore:1600,  types:5, title:'Training Begint',         goal:'Behaal 1600 punten' },
+  { level:4,  rows:7, cols:7, moves:20, targetScore:2000,  types:6, title:'Wereld Toernooi',         goal:'Behaal 2000 punten' },
+  { level:5,  rows:8, cols:7, moves:22, targetScore:2500,  types:6, title:'Piccolo Verschijnt',      goal:'Behaal 2500 punten' },
+  { level:6,  rows:8, cols:7, moves:20, targetScore:3000,  types:6, title:'Saiyan Saga',             goal:'Behaal 3000 punten', collectType:0, collectCount:15 },
+  { level:7,  rows:8, cols:7, moves:20, targetScore:3200,  types:6, title:'Vegeta Nadert',           goal:'Verzamel 18 blauwe Ki', collectType:1, collectCount:18 },
+  { level:8,  rows:8, cols:8, moves:22, targetScore:3500,  types:6, title:'Strijd om Aarde',         goal:'Behaal 3500 punten' },
+  { level:9,  rows:8, cols:8, moves:20, targetScore:4000,  types:6, title:'Reis naar Namek',         goal:'Verzamel 20 groene Ki', collectType:3, collectCount:20 },
+  { level:10, rows:8, cols:8, moves:22, targetScore:4500,  types:7, title:'Ginyu Force',             goal:'Behaal 4500 punten' },
+  { level:11, rows:8, cols:8, moves:20, targetScore:5000,  types:7, title:'Frieza Eerste Vorm',      goal:'Behaal 5000 punten' },
+  { level:12, rows:8, cols:8, moves:18, targetScore:5500,  types:7, title:'Frieza Transformeert',    goal:'Verzamel 22 paarse Ki', collectType:4, collectCount:22 },
+  { level:13, rows:8, cols:8, moves:20, targetScore:6000,  types:7, title:'Super Saiyan Goku!',      goal:'Behaal 6000 punten' },
+  { level:14, rows:8, cols:8, moves:18, targetScore:6500,  types:7, title:'Terugkeer naar Aarde',    goal:'Behaal 6500 punten' },
+  { level:15, rows:8, cols:8, moves:18, targetScore:7000,  types:7, title:'Androids Verschijnen',    goal:'Verzamel 25 rode Ki', collectType:0, collectCount:25 },
+  { level:16, rows:8, cols:8, moves:18, targetScore:7500,  types:7, title:'Cell Saga Begint',        goal:'Behaal 7500 punten' },
+  { level:17, rows:8, cols:8, moves:16, targetScore:8000,  types:7, title:'Hyperbolic Time Chamber',goal:'Behaal 8000 punten' },
+  { level:18, rows:8, cols:8, moves:18, targetScore:8500,  types:7, title:'Cell Games',              goal:'Verzamel 25 gele Ki', collectType:2, collectCount:25 },
+  { level:19, rows:8, cols:8, moves:16, targetScore:9000,  types:7, title:'Gohan Ontketend',         goal:'Behaal 9000 punten' },
+  { level:20, rows:8, cols:8, moves:16, targetScore:9500,  types:7, title:'Buu Saga Begint',         goal:'Behaal 9500 punten' },
+  { level:21, rows:8, cols:8, moves:15, targetScore:10000, types:7, title:'Majin Vegeta',            goal:'Verzamel 28 oranje Ki', collectType:5, collectCount:28 },
+  { level:22, rows:8, cols:8, moves:15, targetScore:11000, types:7, title:'Super Buu',               goal:'Behaal 11000 punten' },
+  { level:23, rows:8, cols:8, moves:14, targetScore:12000, types:7, title:'Vegito Fusie',            goal:'Behaal 12000 punten' },
+  { level:24, rows:8, cols:8, moves:14, targetScore:13000, types:7, title:'Kid Buu',                 goal:'Verzamel 30 blauwe Ki', collectType:1, collectCount:30 },
+  { level:25, rows:8, cols:8, moves:15, targetScore:15000, types:7, title:'Spirit Bomb Finale!',     goal:'Behaal 15000 punten - Eindbaas!' },
+];
+
+// --- Game State ---
+let game = {
+  grid: [],
+  rows: 8, cols: 8,
+  cellSize: 44,
+  offsetX: 0, offsetY: 0,
+  score: 0,
+  moves: 0,
+  maxMoves: 20,
+  targetScore: 5000,
+  currentLevel: 1,
+  numTypes: 5,
+  selected: null,
+  animating: false,
+  animations: [],
+  particles: [],
+  comboCount: 0,
+  kiPower: 0,
+  collectType: -1,
+  collectCount: 0,
+  collected: 0,
+  matchedSets: [],
+};
+
+let playerData = {
+  levelStars: {},
+  maxUnlocked: 1,
+  lastLevel: 1,
+};
+
+// Load save data
+try {
+  const saved = localStorage.getItem('dbz_kicrush_save');
+  if (saved) playerData = JSON.parse(saved);
+} catch(e) {}
+
+function saveGame() {
+  try { localStorage.setItem('dbz_kicrush_save', JSON.stringify(playerData)); } catch(e) {}
+}
+
+// --- Canvas Setup ---
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+let canvasScale = 1;
+
+function resizeCanvas() {
+  const wrap = document.querySelector('.game-canvas-wrap');
+  if (!wrap) return;
+  const w = wrap.clientWidth;
+  const h = wrap.clientHeight - 20;
+  const gridW = game.cols * game.cellSize;
+  const gridH = game.rows * game.cellSize;
+  const padding = 20;
+  const scale = Math.min((w - padding) / gridW, (h - padding) / gridH, 1.3);
+  canvasScale = scale;
+  const cw = Math.floor(gridW * scale);
+  const ch = Math.floor(gridH * scale);
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = cw * dpr;
+  canvas.height = ch * dpr;
+  canvas.style.width = cw + 'px';
+  canvas.style.height = ch + 'px';
+  ctx.setTransform(dpr * scale, 0, 0, dpr * scale, 0, 0);
+  game.offsetX = 0;
+  game.offsetY = 0;
+}
+
+// --- Title Decorations ---
+function setupTitleDeco() {
+  const deco = document.getElementById('titleDeco');
+  deco.innerHTML = '';
+  const emojis = ['🔴','🔵','🟡','🟢','🟣','🟠','⭐','💫','✨'];
+  for (let i = 0; i < 20; i++) {
+    const el = document.createElement('div');
+    el.className = 'db-float';
+    el.textContent = emojis[i % emojis.length];
+    el.style.left = Math.random() * 90 + 5 + '%';
+    el.style.top = Math.random() * 90 + 5 + '%';
+    el.style.animationDelay = (Math.random() * 5) + 's';
+    el.style.animationDuration = (5 + Math.random() * 5) + 's';
+    el.style.fontSize = (20 + Math.random() * 20) + 'px';
+    deco.appendChild(el);
+  }
+}
+
+// --- Screen Management ---
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function showTitle() {
+  showScreen('titleScreen');
+  document.getElementById('resultOverlay').classList.remove('active');
+  if (playerData.maxUnlocked > 1) {
+    document.getElementById('continueBtn').style.display = 'block';
+  }
+}
+
+function showLevelSelect() {
+  AudioEngine.init();
+  buildLevelGrid();
+  showScreen('levelScreen');
+}
+
+function continueGame() {
+  AudioEngine.init();
+  startLevel(playerData.lastLevel);
+}
+
+function buildLevelGrid() {
+  const grid = document.getElementById('levelGrid');
+  grid.innerHTML = '';
+  for (let i = 1; i <= 25; i++) {
+    const btn = document.createElement('div');
+    const stars = playerData.levelStars[i] || 0;
+    const unlocked = i <= playerData.maxUnlocked;
+    const completed = stars > 0;
+    btn.className = 'level-btn ' + (completed ? 'completed' : unlocked ? 'unlocked' : 'locked');
+    btn.innerHTML = `
+      <div class="level-num">${i}</div>
+      <div class="level-stars">
+        ${[1,2,3].map(s => `<span class="${s <= stars ? 'star-on' : 'star-off'}">★</span>`).join('')}
+      </div>
+    `;
+    if (unlocked) btn.onclick = () => startLevel(i);
+    grid.appendChild(btn);
+  }
+}
+
+// --- Start Level ---
+function startLevel(levelNum) {
+  const lvl = LEVELS[levelNum - 1];
+  game.currentLevel = levelNum;
+  game.rows = lvl.rows;
+  game.cols = lvl.cols;
+  game.maxMoves = lvl.moves;
+  game.moves = lvl.moves;
+  game.targetScore = lvl.targetScore;
+  game.numTypes = lvl.types;
+  game.score = 0;
+  game.selected = null;
+  game.animating = false;
+  game.animations = [];
+  game.particles = [];
+  game.comboCount = 0;
+  game.kiPower = 0;
+  game.collectType = lvl.collectType !== undefined ? lvl.collectType : -1;
+  game.collectCount = lvl.collectCount || 0;
+  game.collected = 0;
+
+  playerData.lastLevel = levelNum;
+  saveGame();
+
+  // Adjust cell size based on grid
+  const maxCellW = Math.floor((window.innerWidth - 30) / game.cols);
+  const maxCellH = Math.floor((window.innerHeight - 160) / game.rows);
+  game.cellSize = Math.min(maxCellW, maxCellH, 52);
+
+  initGrid();
+  removeInitialMatches();
+
+  showScreen('gameScreen');
+  updateHUD();
+  resizeCanvas();
+  requestAnimationFrame(renderLoop);
+
+  document.getElementById('gameGoal').textContent = `${lvl.title} — ${lvl.goal}`;
+}
+
+// --- Grid Management ---
+function initGrid() {
+  game.grid = [];
+  for (let r = 0; r < game.rows; r++) {
+    game.grid[r] = [];
+    for (let c = 0; c < game.cols; c++) {
+      game.grid[r][c] = {
+        type: Math.floor(Math.random() * game.numTypes),
+        x: c * game.cellSize,
+        y: r * game.cellSize,
+        targetX: c * game.cellSize,
+        targetY: r * game.cellSize,
+        scale: 1,
+        alpha: 1,
+        destroying: false,
+        special: null, // 'row', 'col', 'bomb'
+      };
+    }
+  }
+}
+
+function removeInitialMatches() {
+  let hasMatches = true;
+  let iterations = 0;
+  while (hasMatches && iterations < 100) {
+    hasMatches = false;
+    iterations++;
+    for (let r = 0; r < game.rows; r++) {
+      for (let c = 0; c < game.cols; c++) {
+        // Check horizontal
+        if (c >= 2 && game.grid[r][c].type === game.grid[r][c-1].type && game.grid[r][c].type === game.grid[r][c-2].type) {
+          game.grid[r][c].type = Math.floor(Math.random() * game.numTypes);
+          hasMatches = true;
+        }
+        // Check vertical
+        if (r >= 2 && game.grid[r][c].type === game.grid[r-1][c].type && game.grid[r][c].type === game.grid[r-2][c].type) {
+          game.grid[r][c].type = Math.floor(Math.random() * game.numTypes);
+          hasMatches = true;
+        }
+      }
+    }
+  }
+}
+
+// --- Match Detection ---
+function findMatches() {
+  const matches = [];
+  // Horizontal
+  for (let r = 0; r < game.rows; r++) {
+    let c = 0;
+    while (c < game.cols) {
+      const type = game.grid[r][c].type;
+      let len = 1;
+      while (c + len < game.cols && game.grid[r][c + len].type === type) len++;
+      if (len >= 3) {
+        const match = [];
+        for (let i = 0; i < len; i++) match.push({ r, c: c + i });
+        matches.push(match);
+      }
+      c += len;
+    }
+  }
+  // Vertical
+  for (let c = 0; c < game.cols; c++) {
+    let r = 0;
+    while (r < game.rows) {
+      const type = game.grid[r][c].type;
+      let len = 1;
+      while (r + len < game.rows && game.grid[r + len][c].type === type) len++;
+      if (len >= 3) {
+        const match = [];
+        for (let i = 0; i < len; i++) match.push({ r: r + i, c });
+        matches.push(match);
+      }
+      r += len;
+    }
+  }
+  return matches;
+}
+
+// --- Process Matches ---
+function processMatches() {
+  const matches = findMatches();
+  if (matches.length === 0) {
+    game.comboCount = 0;
+    game.animating = false;
+    checkGameEnd();
+    return;
+  }
+
+  game.comboCount++;
+  if (game.comboCount > 1) {
+    AudioEngine.play('combo');
+    showComboText(game.comboCount);
+  } else {
+    AudioEngine.play('match');
+  }
+
+  const toDestroy = new Set();
+  matches.forEach(match => {
+    // Check for special creation (4+ match)
+    if (match.length === 4) {
+      // Create a row/col clearer at swap position or middle
+      const mid = match[Math.floor(match.length / 2)];
+      const isHoriz = match[0].r === match[1].r;
+      game.grid[mid.r][mid.c].special = isHoriz ? 'row' : 'col';
+    } else if (match.length >= 5) {
+      const mid = match[Math.floor(match.length / 2)];
+      game.grid[mid.r][mid.c].special = 'bomb';
+    }
+
+    match.forEach(pos => {
+      const key = pos.r + ',' + pos.c;
+      if (!toDestroy.has(key)) {
+        toDestroy.add(key);
+        const cell = game.grid[pos.r][pos.c];
+
+        // Track collection
+        if (game.collectType >= 0 && cell.type === game.collectType) {
+          game.collected++;
+        }
+
+        // Score
+        const baseScore = 30 + (game.comboCount - 1) * 15;
+        game.score += baseScore;
+        game.kiPower = Math.min(100, game.kiPower + 3);
+
+        // Create particles
+        spawnParticles(pos.c * game.cellSize + game.cellSize/2, pos.r * game.cellSize + game.cellSize/2, cell.type);
+
+        // Check for special activation
+        if (cell.special && match.length <= 3) {
+          activateSpecial(cell, pos.r, pos.c, toDestroy);
+        }
+      }
+    });
+  });
+
+  // Animate destruction
+  toDestroy.forEach(key => {
+    const [r, c] = key.split(',').map(Number);
+    const cell = game.grid[r][c];
+    if (!cell.special || matches.some(m => m.length > 3 && m.some(p => p.r === r && p.c === c))) {
+      // Don't destroy newly created specials from this match
+      if (cell.special && matches.some(m => m.length >= 4 && m[Math.floor(m.length/2)].r === r && m[Math.floor(m.length/2)].c === c)) {
+        return;
+      }
+      cell.destroying = true;
+    }
+  });
+
+  updateHUD();
+
+  // After short delay, remove and drop
+  setTimeout(() => {
+    // Remove destroyed gems
+    for (let r = 0; r < game.rows; r++) {
+      for (let c = 0; c < game.cols; c++) {
+        if (game.grid[r][c].destroying) {
+          game.grid[r][c] = null;
+        }
+      }
+    }
+    dropGems();
+    fillEmpty();
+
+    // After drop animation, check for more matches
+    setTimeout(() => {
+      processMatches();
+    }, 300);
+  }, 250);
+}
+
+function activateSpecial(cell, r, c, toDestroy) {
+  AudioEngine.play('special');
+  game.score += 200;
+  if (cell.special === 'row') {
+    for (let cc = 0; cc < game.cols; cc++) {
+      toDestroy.add(r + ',' + cc);
+      if (game.collectType >= 0 && game.grid[r][cc] && game.grid[r][cc].type === game.collectType) game.collected++;
+      spawnParticles(cc * game.cellSize + game.cellSize/2, r * game.cellSize + game.cellSize/2, cell.type);
+    }
+  } else if (cell.special === 'col') {
+    for (let rr = 0; rr < game.rows; rr++) {
+      toDestroy.add(rr + ',' + c);
+      if (game.collectType >= 0 && game.grid[rr][c] && game.grid[rr][c].type === game.collectType) game.collected++;
+      spawnParticles(c * game.cellSize + game.cellSize/2, rr * game.cellSize + game.cellSize/2, cell.type);
+    }
+  } else if (cell.special === 'bomb') {
+    for (let dr = -2; dr <= 2; dr++) {
+      for (let dc = -2; dc <= 2; dc++) {
+        const nr = r + dr, nc = c + dc;
+        if (nr >= 0 && nr < game.rows && nc >= 0 && nc < game.cols) {
+          toDestroy.add(nr + ',' + nc);
+          if (game.collectType >= 0 && game.grid[nr][nc] && game.grid[nr][nc].type === game.collectType) game.collected++;
+          spawnParticles(nc * game.cellSize + game.cellSize/2, nr * game.cellSize + game.cellSize/2, cell.type);
+        }
+      }
+    }
+  }
+}
+
+function dropGems() {
+  for (let c = 0; c < game.cols; c++) {
+    let emptyRow = game.rows - 1;
+    for (let r = game.rows - 1; r >= 0; r--) {
+      if (game.grid[r][c] !== null) {
+        if (r !== emptyRow) {
+          game.grid[emptyRow][c] = game.grid[r][c];
+          game.grid[r][c] = null;
+          game.grid[emptyRow][c].targetY = emptyRow * game.cellSize;
+          game.grid[emptyRow][c].targetX = c * game.cellSize;
+        }
+        emptyRow--;
+      }
+    }
+  }
+}
+
+function fillEmpty() {
+  for (let c = 0; c < game.cols; c++) {
+    for (let r = 0; r < game.rows; r++) {
+      if (game.grid[r][c] === null) {
+        game.grid[r][c] = {
+          type: Math.floor(Math.random() * game.numTypes),
+          x: c * game.cellSize,
+          y: -game.cellSize * (game.rows - r),
+          targetX: c * game.cellSize,
+          targetY: r * game.cellSize,
+          scale: 1,
+          alpha: 1,
+          destroying: false,
+          special: null,
+        };
+      }
+    }
+  }
+}
+
+// --- Swap Logic ---
+function trySwap(r1, c1, r2, c2) {
+  if (game.animating) return;
+  if (Math.abs(r1-r2) + Math.abs(c1-c2) !== 1) return;
+
+  game.animating = true;
+  AudioEngine.play('swap');
+
+  // Swap in grid
+  const temp = game.grid[r1][c1];
+  game.grid[r1][c1] = game.grid[r2][c2];
+  game.grid[r2][c2] = temp;
+
+  // Update targets
+  game.grid[r1][c1].targetX = c1 * game.cellSize;
+  game.grid[r1][c1].targetY = r1 * game.cellSize;
+  game.grid[r2][c2].targetX = c2 * game.cellSize;
+  game.grid[r2][c2].targetY = r2 * game.cellSize;
+
+  setTimeout(() => {
+    const matches = findMatches();
+    if (matches.length > 0) {
+      game.moves--;
+      updateHUD();
+      processMatches();
+    } else {
+      // Swap back
+      const temp2 = game.grid[r1][c1];
+      game.grid[r1][c1] = game.grid[r2][c2];
+      game.grid[r2][c2] = temp2;
+      game.grid[r1][c1].targetX = c1 * game.cellSize;
+      game.grid[r1][c1].targetY = r1 * game.cellSize;
+      game.grid[r2][c2].targetX = c2 * game.cellSize;
+      game.grid[r2][c2].targetY = r2 * game.cellSize;
+      setTimeout(() => { game.animating = false; }, 200);
+    }
+  }, 200);
+}
+
+// --- Ki Power Special ---
+function useKiPower() {
+  if (game.kiPower < 100 || game.animating) return;
+  game.kiPower = 0;
+  game.animating = true;
+  AudioEngine.play('special');
+
+  // Destroy random 8 gems
+  const positions = [];
+  for (let r = 0; r < game.rows; r++)
+    for (let c = 0; c < game.cols; c++)
+      positions.push({r, c});
+  positions.sort(() => Math.random() - 0.5);
+  const toDestroy = positions.slice(0, 8);
+  toDestroy.forEach(({r, c}) => {
+    const cell = game.grid[r][c];
+    if (cell) {
+      if (game.collectType >= 0 && cell.type === game.collectType) game.collected++;
+      game.score += 50;
+      spawnParticles(c * game.cellSize + game.cellSize/2, r * game.cellSize + game.cellSize/2, cell.type);
+      game.grid[r][c] = null;
+    }
+  });
+
+  updateHUD();
+  setTimeout(() => {
+    dropGems();
+    fillEmpty();
+    setTimeout(() => processMatches(), 300);
+  }, 300);
+}
+
+// --- Game End Check ---
+function checkGameEnd() {
+  const goalMet = game.collectType >= 0
+    ? (game.collected >= game.collectCount && game.score >= game.targetScore * 0.5)
+    : game.score >= game.targetScore;
+
+  if (goalMet) {
+    endLevel(true);
+  } else if (game.moves <= 0) {
+    endLevel(false);
+  } else if (!hasValidMoves()) {
+    // Shuffle board
+    shuffleBoard();
+  }
+}
+
+function hasValidMoves() {
+  for (let r = 0; r < game.rows; r++) {
+    for (let c = 0; c < game.cols; c++) {
+      // Try swap right
+      if (c < game.cols - 1) {
+        swapTemp(r, c, r, c+1);
+        if (findMatches().length > 0) { swapTemp(r, c, r, c+1); return true; }
+        swapTemp(r, c, r, c+1);
+      }
+      // Try swap down
+      if (r < game.rows - 1) {
+        swapTemp(r, c, r+1, c);
+        if (findMatches().length > 0) { swapTemp(r, c, r+1, c); return true; }
+        swapTemp(r, c, r+1, c);
+      }
+    }
+  }
+  return false;
+}
+
+function swapTemp(r1, c1, r2, c2) {
+  const t = game.grid[r1][c1];
+  game.grid[r1][c1] = game.grid[r2][c2];
+  game.grid[r2][c2] = t;
+}
+
+function shuffleBoard() {
+  const types = [];
+  for (let r = 0; r < game.rows; r++)
+    for (let c = 0; c < game.cols; c++)
+      types.push(game.grid[r][c].type);
+  types.sort(() => Math.random() - 0.5);
+  let i = 0;
+  for (let r = 0; r < game.rows; r++)
+    for (let c = 0; c < game.cols; c++) {
+      game.grid[r][c].type = types[i++];
+      game.grid[r][c].targetX = c * game.cellSize;
+      game.grid[r][c].targetY = r * game.cellSize;
+    }
+  removeInitialMatches();
+}
+
+function endLevel(won) {
+  game.animating = true;
+  setTimeout(() => {
+    if (won) {
+      AudioEngine.play('win');
+      const pct = game.score / game.targetScore;
+      let stars = 1;
+      if (pct >= 1.5) stars = 3;
+      else if (pct >= 1.2) stars = 2;
+
+      const prev = playerData.levelStars[game.currentLevel] || 0;
+      if (stars > prev) playerData.levelStars[game.currentLevel] = stars;
+      if (game.currentLevel >= playerData.maxUnlocked && game.currentLevel < 25) {
+        playerData.maxUnlocked = game.currentLevel + 1;
+      }
+      saveGame();
+
+      document.getElementById('resultTitle').textContent = 'GEWONNEN!';
+      document.getElementById('resultTitle').className = 'result-title result-win';
+      document.getElementById('resultStars').textContent = '★'.repeat(stars) + '☆'.repeat(3 - stars);
+      document.getElementById('resultStars').style.color = '#ffd700';
+      document.getElementById('nextBtn').style.display = game.currentLevel < 25 ? 'inline-block' : 'none';
+    } else {
+      AudioEngine.play('lose');
+      document.getElementById('resultTitle').textContent = 'VERLOREN...';
+      document.getElementById('resultTitle').className = 'result-title result-lose';
+      document.getElementById('resultStars').textContent = '☆☆☆';
+      document.getElementById('resultStars').style.color = '#666';
+      document.getElementById('nextBtn').style.display = 'none';
+    }
+    document.getElementById('resultScore').textContent = `Score: ${game.score}`;
+    document.getElementById('resultOverlay').classList.add('active');
+  }, 500);
+}
+
+function retryLevel() {
+  document.getElementById('resultOverlay').classList.remove('active');
+  startLevel(game.currentLevel);
+}
+
+function nextLevel() {
+  document.getElementById('resultOverlay').classList.remove('active');
+  if (game.currentLevel < 25) startLevel(game.currentLevel + 1);
+}
+
+function backToLevels() {
+  document.getElementById('resultOverlay').classList.remove('active');
+  showLevelSelect();
+}
+
+// --- HUD ---
+function updateHUD() {
+  document.getElementById('hudScore').textContent = game.score;
+  document.getElementById('hudLevel').textContent = game.currentLevel;
+  document.getElementById('hudMoves').textContent = game.moves;
+
+  let progress;
+  if (game.collectType >= 0) {
+    progress = Math.min(100, (game.collected / game.collectCount) * 100);
+  } else {
+    progress = Math.min(100, (game.score / game.targetScore) * 100);
+  }
+  document.getElementById('hudProgress').style.width = progress + '%';
+  document.getElementById('powerFill').style.width = game.kiPower + '%';
+
+  // Update moves color
+  const movesEl = document.getElementById('hudMoves');
+  if (game.moves <= 3) movesEl.style.color = '#f44336';
+  else if (game.moves <= 6) movesEl.style.color = '#ff9800';
+  else movesEl.style.color = '#42A5F5';
+}
+
+// --- Particles ---
+function spawnParticles(x, y, type) {
+  const gem = GEM_TYPES[type] || GEM_TYPES[0];
+  for (let i = 0; i < 6; i++) {
+    game.particles.push({
+      x, y,
+      vx: (Math.random() - 0.5) * 8,
+      vy: (Math.random() - 0.5) * 8 - 3,
+      size: 2 + Math.random() * 4,
+      color: gem.color,
+      life: 1,
+      decay: 0.02 + Math.random() * 0.03,
+    });
+  }
+}
+
+function showComboText(combo) {
+  const texts = ['', '', 'GREAT!', 'AMAZING!', 'KAMEHAMEHA!', 'SUPER SAIYAN!', 'ULTRA INSTINCT!'];
+  const text = combo < texts.length ? texts[combo] : `${combo}x COMBO!`;
+  const el = document.createElement('div');
+  el.className = 'combo-text';
+  el.textContent = text;
+  el.style.left = '50%';
+  el.style.top = '40%';
+  el.style.transform = 'translateX(-50%)';
+  document.getElementById('gameScreen').appendChild(el);
+  setTimeout(() => el.remove(), 1000);
+}
+
+// --- Rendering ---
+function drawGem(x, y, type, size, alpha, special) {
+  const gem = GEM_TYPES[type];
+  if (!gem) return;
+  const cx = x + size / 2;
+  const cy = y + size / 2;
+  const r = size * 0.38;
+
+  ctx.save();
+  ctx.globalAlpha = alpha;
+
+  // Glow
+  const glow = ctx.createRadialGradient(cx, cy, r * 0.3, cx, cy, r * 1.4);
+  glow.addColorStop(0, gem.glow + '44');
+  glow.addColorStop(1, gem.glow + '00');
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r * 1.4, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Main orb gradient
+  const grad = ctx.createRadialGradient(cx - r * 0.3, cy - r * 0.3, r * 0.1, cx, cy, r);
+  grad.addColorStop(0, gem.gradient[0]);
+  grad.addColorStop(0.7, gem.color);
+  grad.addColorStop(1, gem.gradient[1]);
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Inner shine
+  ctx.fillStyle = 'rgba(255,255,255,0.35)';
+  ctx.beginPath();
+  ctx.ellipse(cx - r * 0.15, cy - r * 0.25, r * 0.45, r * 0.3, -0.5, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Tiny highlight
+  ctx.fillStyle = 'rgba(255,255,255,0.7)';
+  ctx.beginPath();
+  ctx.arc(cx - r * 0.25, cy - r * 0.3, r * 0.12, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Star pattern for Dragon Ball type
+  if (type === 5) {
+    const starCount = Math.min(4, game.currentLevel % 7 + 1);
+    ctx.fillStyle = 'rgba(180,0,0,0.7)';
+    for (let i = 0; i < starCount; i++) {
+      const angle = (i / starCount) * Math.PI * 2 - Math.PI / 2;
+      const sx = cx + Math.cos(angle) * r * 0.4;
+      const sy = cy + Math.sin(angle) * r * 0.4;
+      drawStar(sx, sy, r * 0.12, 5);
+    }
+  }
+
+  // Special indicator
+  if (special) {
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    if (special === 'row') {
+      ctx.beginPath();
+      ctx.moveTo(cx - r * 0.6, cy);
+      ctx.lineTo(cx + r * 0.6, cy);
+      ctx.stroke();
+      // Arrows
+      ctx.beginPath();
+      ctx.moveTo(cx - r * 0.6, cy); ctx.lineTo(cx - r * 0.3, cy - r * 0.2); ctx.moveTo(cx - r * 0.6, cy); ctx.lineTo(cx - r * 0.3, cy + r * 0.2);
+      ctx.moveTo(cx + r * 0.6, cy); ctx.lineTo(cx + r * 0.3, cy - r * 0.2); ctx.moveTo(cx + r * 0.6, cy); ctx.lineTo(cx + r * 0.3, cy + r * 0.2);
+      ctx.stroke();
+    } else if (special === 'col') {
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - r * 0.6);
+      ctx.lineTo(cx, cy + r * 0.6);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - r * 0.6); ctx.lineTo(cx - r * 0.2, cy - r * 0.3); ctx.moveTo(cx, cy - r * 0.6); ctx.lineTo(cx + r * 0.2, cy - r * 0.3);
+      ctx.moveTo(cx, cy + r * 0.6); ctx.lineTo(cx - r * 0.2, cy + r * 0.3); ctx.moveTo(cx, cy + r * 0.6); ctx.lineTo(cx + r * 0.2, cy + r * 0.3);
+      ctx.stroke();
+    } else if (special === 'bomb') {
+      ctx.beginPath();
+      ctx.arc(cx, cy, r * 0.7, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(cx, cy, r * 0.4, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+  }
+
+  ctx.restore();
+}
+
+function drawStar(x, y, r, points) {
+  ctx.beginPath();
+  for (let i = 0; i < points * 2; i++) {
+    const angle = (i * Math.PI) / points - Math.PI / 2;
+    const rad = i % 2 === 0 ? r : r * 0.4;
+    const px = x + Math.cos(angle) * rad;
+    const py = y + Math.sin(angle) * rad;
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.closePath();
+  ctx.fill();
+}
+
+function render() {
+  const gridW = game.cols * game.cellSize;
+  const gridH = game.rows * game.cellSize;
+  ctx.clearRect(-10, -10, gridW + 20, gridH + 20);
+
+  // Background grid
+  ctx.fillStyle = '#0d0d24';
+  ctx.fillRect(0, 0, gridW, gridH);
+
+  // Grid lines
+  ctx.strokeStyle = '#1a1a3a';
+  ctx.lineWidth = 0.5;
+  for (let r = 0; r <= game.rows; r++) {
+    ctx.beginPath();
+    ctx.moveTo(0, r * game.cellSize);
+    ctx.lineTo(gridW, r * game.cellSize);
+    ctx.stroke();
+  }
+  for (let c = 0; c <= game.cols; c++) {
+    ctx.beginPath();
+    ctx.moveTo(c * game.cellSize, 0);
+    ctx.lineTo(c * game.cellSize, gridH);
+    ctx.stroke();
+  }
+
+  // Selection highlight
+  if (game.selected) {
+    const { r, c } = game.selected;
+    ctx.fillStyle = 'rgba(255,140,0,0.25)';
+    ctx.fillRect(c * game.cellSize, r * game.cellSize, game.cellSize, game.cellSize);
+    ctx.strokeStyle = '#ff8c00';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(c * game.cellSize + 1, r * game.cellSize + 1, game.cellSize - 2, game.cellSize - 2);
+  }
+
+  // Gems
+  for (let r = 0; r < game.rows; r++) {
+    for (let c = 0; c < game.cols; c++) {
+      const cell = game.grid[r][c];
+      if (!cell) continue;
+
+      // Animate position
+      cell.x += (cell.targetX - cell.x) * 0.25;
+      cell.y += (cell.targetY - cell.y) * 0.25;
+
+      // Animate destruction
+      if (cell.destroying) {
+        cell.scale *= 0.85;
+        cell.alpha *= 0.85;
+      }
+
+      const pad = game.cellSize * (1 - cell.scale) / 2;
+      const drawSize = game.cellSize * cell.scale;
+      drawGem(cell.x + pad, cell.y + pad, cell.type, drawSize, cell.alpha, cell.special);
+    }
+  }
+
+  // Particles
+  for (let i = game.particles.length - 1; i >= 0; i--) {
+    const p = game.particles[i];
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.2;
+    p.life -= p.decay;
+    if (p.life <= 0) {
+      game.particles.splice(i, 1);
+      continue;
+    }
+    ctx.globalAlpha = p.life;
+    ctx.fillStyle = p.color;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+}
+
+let lastTime = 0;
+function renderLoop(time) {
+  if (document.getElementById('gameScreen').classList.contains('active')) {
+    render();
+    requestAnimationFrame(renderLoop);
+  }
+}
+
+// --- Input Handling ---
+let touchStartR = -1, touchStartC = -1;
+let touchStartX = 0, touchStartY = 0;
+
+function getCellFromEvent(e) {
+  const rect = canvas.getBoundingClientRect();
+  const touch = e.touches ? e.touches[0] : e;
+  const x = (touch.clientX - rect.left) / canvasScale;
+  const y = (touch.clientY - rect.top) / canvasScale;
+  const c = Math.floor(x / game.cellSize);
+  const r = Math.floor(y / game.cellSize);
+  if (r >= 0 && r < game.rows && c >= 0 && c < game.cols) return { r, c };
+  return null;
+}
+
+canvas.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  AudioEngine.init();
+  const cell = getCellFromEvent(e);
+  if (!cell || game.animating) return;
+  const touch = e.touches[0];
+  touchStartX = touch.clientX;
+  touchStartY = touch.clientY;
+  touchStartR = cell.r;
+  touchStartC = cell.c;
+
+  if (game.selected) {
+    const dr = Math.abs(cell.r - game.selected.r);
+    const dc = Math.abs(cell.c - game.selected.c);
+    if (dr + dc === 1) {
+      trySwap(game.selected.r, game.selected.c, cell.r, cell.c);
+      game.selected = null;
+      return;
+    }
+  }
+  game.selected = cell;
+}, { passive: false });
+
+canvas.addEventListener('touchmove', (e) => {
+  e.preventDefault();
+  if (touchStartR < 0 || game.animating) return;
+  const touch = e.touches[0];
+  const dx = touch.clientX - touchStartX;
+  const dy = touch.clientY - touchStartY;
+  const threshold = game.cellSize * canvasScale * 0.3;
+  if (Math.abs(dx) > threshold || Math.abs(dy) > threshold) {
+    let tr = touchStartR, tc = touchStartC;
+    if (Math.abs(dx) > Math.abs(dy)) {
+      tc += dx > 0 ? 1 : -1;
+    } else {
+      tr += dy > 0 ? 1 : -1;
+    }
+    if (tr >= 0 && tr < game.rows && tc >= 0 && tc < game.cols) {
+      trySwap(touchStartR, touchStartC, tr, tc);
+      game.selected = null;
+    }
+    touchStartR = -1;
+  }
+}, { passive: false });
+
+canvas.addEventListener('touchend', (e) => {
+  e.preventDefault();
+  touchStartR = -1;
+}, { passive: false });
+
+// Mouse support for desktop
+canvas.addEventListener('mousedown', (e) => {
+  AudioEngine.init();
+  const cell = getCellFromEvent(e);
+  if (!cell || game.animating) return;
+  touchStartX = e.clientX;
+  touchStartY = e.clientY;
+  touchStartR = cell.r;
+  touchStartC = cell.c;
+
+  if (game.selected) {
+    const dr = Math.abs(cell.r - game.selected.r);
+    const dc = Math.abs(cell.c - game.selected.c);
+    if (dr + dc === 1) {
+      trySwap(game.selected.r, game.selected.c, cell.r, cell.c);
+      game.selected = null;
+      return;
+    }
+  }
+  game.selected = cell;
+});
+
+canvas.addEventListener('mousemove', (e) => {
+  if (touchStartR < 0 || game.animating || !(e.buttons & 1)) return;
+  const dx = e.clientX - touchStartX;
+  const dy = e.clientY - touchStartY;
+  const threshold = game.cellSize * canvasScale * 0.3;
+  if (Math.abs(dx) > threshold || Math.abs(dy) > threshold) {
+    let tr = touchStartR, tc = touchStartC;
+    if (Math.abs(dx) > Math.abs(dy)) {
+      tc += dx > 0 ? 1 : -1;
+    } else {
+      tr += dy > 0 ? 1 : -1;
+    }
+    if (tr >= 0 && tr < game.rows && tc >= 0 && tc < game.cols) {
+      trySwap(touchStartR, touchStartC, tr, tc);
+      game.selected = null;
+    }
+    touchStartR = -1;
+  }
+});
+
+canvas.addEventListener('mouseup', () => { touchStartR = -1; });
+
+// Ki Power bar click
+document.querySelector('.power-bar-wrap').addEventListener('click', useKiPower);
+document.querySelector('.power-bar-wrap').addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  useKiPower();
+});
+
+// --- Resize ---
+window.addEventListener('resize', resizeCanvas);
+window.addEventListener('orientationchange', () => setTimeout(resizeCanvas, 100));
+
+// --- Init ---
+setupTitleDeco();
+</script>
+</body>
+</html>
